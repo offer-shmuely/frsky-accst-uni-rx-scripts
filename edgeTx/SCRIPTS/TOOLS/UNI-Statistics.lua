@@ -1,27 +1,26 @@
+-- TNS|UNI Statistics v6|TNE
+
 -- D8R-II, D8R-IIplus, D8R-XP or D4R-II configuration program for use with the firmware developed by Mike Blandford
 -- Conversion from Basic D8rD16.bas (ErskyTx) to lua D8rD16.lua (OpenTx) code with Avionic78, Dean Church and dev.fred contributions
 -- D8rD16v5.lua
--- V1 05/01/2020 -X10, X9D, X7, X-Lite dev.fred
--- V2 07/02/2020 -Invert SBUS (d8rii_rom050220)
--- V3 03/02/2020 -manage 8 lines max on X9D  & Xlite
--- V3a 18/03/2020 -fix button events on X9D, Larger text size on 480 screen, reorder setup options - MRC3742
--- V3b 18/03/2020 -add Splash Screen - Change value below to change duration (or 0 to bypass) - MRC3742
--- V4 31/03/2020 -convert extra page from bas script for unique ID's and the first few channel counts - MRC3742
--- V5 28/04/2020 -Add Channel-Map Page (converted map.bas), All 47 hopping channels(only 29 on 128 wide), rearrange options and pages - dev.fred, MRC3742
-
-local toolName = "TNS|UNI-Stats V6|TNE"  -- must stay above line 15 to be recognized by OTX
-
--- V5 24/02/2022 - DW Add Receidev Antenna Blocks for Horus 480 Pixel display
--- V5a 24.02.2022 DW Naming of Blocks changed. Refersh Rate correction in Hopping Table.  PageSwitch modified
--- V5b 25.02.2022 DW Bug in Receiver Type Display fixed
--- V5c 28.02.2022 DW RX8R-PRO and RX8R added
--- V5d 28.02.2022 DW 1 more  Page added
--- V5e 28.02.2022 DW Page Back not working properly on Taranis
--- V6 26/02/2023 New Receivers added, Remove useless code as setup now has a seperate script, Title text centered on pages, Color added - MRC3742 
+-- V1  05.01.2020 - X10, X9D, X7, X-Lite dev.fred
+-- V2  07.02.2020 - Invert SBUS (d8rii_rom050220)
+-- V3  03.02.2020 - manage 8 lines max on X9D  & Xlite
+-- V3a 18.03.2020 - fix button events on X9D, Larger text size on 480 screen, reorder setup options - MRC3742
+-- V3b 18.03.2020 - add Splash Screen - Change value below to change duration (or 0 to bypass) - MRC3742
+-- V4  31.03.2020 - convert extra page from bas script for unique ID's and the first few channel counts - MRC3742
+-- V5  28.04.2020 - Add Channel-Map Page (converted map.bas), All 47 hopping channels(only 29 on 128 wide), rearrange options and pages - dev.fred, MRC3742
+-- V5  24.02.2022 - DW Add Receiver Antenna Blocks for Horus 480 Pixel display
+-- V5a 24.02.2022 - DW Naming of Blocks changed. Refresh Rate correction in Hopping Table.  PageSwitch modified
+-- V5b 25.02.2022 - DW Bug in Receiver Type Display fixed
+-- V5c 28.02.2022 - DW RX8R-PRO and RX8R added
+-- V5d 28.02.2022 - DW 1 more  Page added
+-- V5e 28.02.2022 - DW Page Back not working properly on Taranis
+-- V6  26.02.2023 - New Receivers added, Remove useless code as setup now has a separate script, Title text centered on pages, Color added - MRC3742
 
 local version = "6"
 local splashTime = 40 --<< Change value for splash screen timeout at startup (value of 20 = 1 second)
-local color = 1 --<< Changing value to 0 will disable color on 480 wide screens
+local use_color = 1 --<< Changing value to 0 will disable color on 480 wide screens
 local Statistics = {}
 local StatRead = {}
 local RxType = {}
@@ -112,12 +111,12 @@ end	-- END Statistics Page-1 --
 
 local function RecInfo()
   lcd.drawText(midpx-wfpx*5.1, 0, "RECEIVER  INFO", txtSiz)
-  lcd.drawText(xpos_L, hfpx*1, "Type", txtSiz)
-  lcd.drawText(xpos_L, hfpx*2, "Bind", txtSiz)
-  lcd.drawText(xpos_L, hfpx*3, "Version", txtSiz)
-  lcd.drawText(xpos_L, hfpx*4, "Average Pkt Time", txtSiz)  
+  lcd.drawText(xpos_L, hfpx*1, "RX Type", txtSiz)
+  lcd.drawText(xpos_L, hfpx*2, "Bind Protocol", txtSiz)
+  lcd.drawText(xpos_L, hfpx*3, "Firmware Version", txtSiz)
+  lcd.drawText(xpos_L, hfpx*4, "Average Pkt Time", txtSiz)
 
-  if Statistics[9] > 0.51 then       
+  if Statistics[9] > 0.51 then
     if Statistics[9] < 10 then
       t = math.floor(Statistics[9]-0.5)
       lcd.drawText(xpos_R, hfpx, RxType[t], txtSiz_R + StatRead[9])
@@ -133,7 +132,7 @@ local function RecInfo()
   displayStats(7,3)      -- Display Version
   displayStats(3,4)      -- Average Pkt Time
 
-  lcd.drawText(xpos_R, hfpxLast, "UNI-RX Statistics lua Ver_" ..version, smSiz_R)
+  lcd.drawText(xpos_R, hfpxLast, "script version: " ..version, smSiz_R)
   lcd.drawText(LCD_W, 0, "2/3", smSiz_R)
 end	-- END Statistics Page-2 --
 
@@ -239,8 +238,8 @@ local function hoptable()
     displayHop(line)
   end
 
-  if LCD_W > 128 then 
-    lcd.drawText(LCD_W, 0, "3/3", smSiz_R) 
+  if LCD_W > 128 then
+    lcd.drawText(LCD_W, 0, "3/3", smSiz_R)
   end
 end	-- END Channel Hop Count Page-3 --
 
@@ -253,7 +252,7 @@ local function splash()
 end
 
 local function pageSwap(event)
-  if Page < NrOfPages then   
+  if Page < NrOfPages then
     Page = Page + 1
   else
     Page = 1
@@ -264,7 +263,7 @@ local function pageBack(event)
   if Page > 1 then
     Page = Page - 1
   else
-    Page = NrOfPages       
+    Page = NrOfPages
   end
   killEvents(event)
 end
@@ -318,7 +317,7 @@ local function init()
     smSiz = SMLSIZE
     bigSiz = MIDSIZE
   end
-  
+
   xpos_L = (midpx-wfpx*7.8)  -- Left Side alignment position
   xpos_R = (midpx+wfpx*7.9)  -- Right Side alignment position
   txtSiz_R = txtSiz + RIGHT
@@ -327,7 +326,7 @@ end
 
 local function run(event)
   lcd.clear()
-  if LCD_W == 480 and color ~= 0 then
+  if LCD_W == 480 and use_color ~= 0 then
     local BLUE1 = lcd.RGB(0x1E, 0x88, 0xE5)
     local GOLD1 = lcd.RGB(0xF9, 0xC4, 0x40)
     local GRAY1 = lcd.RGB(0x90, 0xA4, 0xAE)

@@ -1,7 +1,8 @@
+-- TNS|UNI Activate v2|TNE
+
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V2 Activation Code numbers blinking when selected to change, Rx disconnected clears screen, Whitespace reformat, Misc cosmetic changes, Color added by MRC3742
 
-local toolName = "TNS|UNI-Actvte V2|TNE"
 
 local version = "2"
 local splashTime = 40 --<< Change value for splash screen timeout at startup (value of 20 = 1 second)

@@ -1,8 +1,8 @@
+-- TNS|UNI Setup v4|TNE
+
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V3 RX8RPRO corrected, RX8R added, whitespace reformat-Mike Blandford
 -- V4 RX4R/6R and XSR added,options Invert SBUS,CPPM Enable added,New page-Rx Servo Rates,Misc options as N/A by RX firmware detected,Color added,D8/D4 now work need ver_57 by MikeB + MRC3742
-
-local toolName = "TNS|UNI-Setup V4|TNE"
 
 local version = "4"
 local splashTime = 40 --<< Change value for splash screen timeout at startup (value of 20 = 1 second)
