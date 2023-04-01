@@ -293,7 +293,7 @@ local function refreshSetup()
   if Stat7Read == 1 then
     if Stat7Value > 2 then
       s7v = math.floor(Stat7Value+0.5)
-      lcd.drawText(midpx+wfpx*1.8, ty, "V_"..s7v, smSiz + LEFT)
+      lcd.drawText(midpx+wfpx*1.8, ty, "v"..s7v, smSiz + LEFT)
     else
       Stat7Read = 0
     end
@@ -314,11 +314,11 @@ local function refreshSetup()
     attr = INVERS
   end
   if Stat9Read == 1 then
-    lcd.drawText(xpos_R, ty, "RESET", attr + txtSiz_R)
+    lcd.drawText(xpos_R, ty, "RESET NOW", attr + txtSiz_R)
   end
 
   ty = hfpx*3
-  lcd.drawText(xpos_L, ty, "Tuning", txtSiz)
+  lcd.drawText(xpos_L, ty, "Auto Tuning", txtSiz)
   if TuneOffRead == 1 then
     tvalue = TuneOffset
     if tvalue > 128 then
@@ -557,7 +557,7 @@ local function refreshServoRates()
       end
     end
   end
-  lcd.drawText(midpx+wfpx*8, hfpxLast, "UNI-RX Setup lua Ver_" ..version, smSiz + RIGHT)
+  lcd.drawText(midpx+wfpx*8, hfpxLast, "script ver:" ..version, smSiz + RIGHT)
   lcd.drawText(LCD_W, 0, "2/3", smSiz + RIGHT)
 end ---- END RX Servo Rates Page-1 ----
 
@@ -755,7 +755,7 @@ local function refreshresetting()
 end
 
 local function splash()
-  lcd.drawText(midpx-wfpx*4.8, hfpx,"RX Setup", bigSiz)
+  lcd.drawText(midpx-wfpx*4.8, hfpx,"UNI RX Setup", bigSiz)
   lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version " ..version ..")", smSiz)
   lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz)
   lcd.drawText(xpos_L, hfpxLast, "Developer MikeBlandford", txtSiz)
@@ -873,7 +873,7 @@ local function run(event)
       ThmTexInvCol = lcd.getColor(TEXT_INVERTED_COLOR)
       ThmTexInvBgCol = lcd.getColor(TEXT_INVERTED_BGCOLOR)
     end
-    if start < splashTime then 
+    if start < splashTime then
       lcd.setColor(CUSTOM_COLOR, GOLD1)
       lcd.drawFilledRectangle(0, 0, LCD_W, LCD_H, CUSTOM_COLOR)     --Splash Page
       lcd.setColor(TEXT_COLOR, BLACK)
