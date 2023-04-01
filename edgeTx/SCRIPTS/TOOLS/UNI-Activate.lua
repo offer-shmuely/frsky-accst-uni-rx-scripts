@@ -247,7 +247,7 @@ lcd.drawText(xpos_L, hfpx*2, "Rx Code:", txtSiz)
   if SendingCode > 0 then
     lcd.drawText(midpx-wfpx*4.2, hfpx*6, "Sending Act Code", txtSiz)
   end
-  lcd.drawText(xpos_R, hfpxLast, "script ver:" ..version, smSiz + RIGHT)
+  lcd.drawText(xpos_R, hfpxLast, "script ver: " ..version, smSiz + RIGHT)
 end -- END RX Setup Page-0 --
 
 local function splash()

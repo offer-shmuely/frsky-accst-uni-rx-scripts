@@ -281,10 +281,10 @@ local function init()
   RxType[8] = "Type[8]"  --Future Placeholder
   RxType[9] = "Type[9]"  --Future Placeholder
 
-  Mode[0] = "V1FCC"
-  Mode[1] = "V1_EU"
-  Mode[2] = "V2FCC"
-  Mode[3] = "V2_EU"
+  Mode[0] = "V1-FCC"
+  Mode[1] = "V1-EU"
+  Mode[2] = "V2-FCC"
+  Mode[3] = "V2-EU"
 
   for i = 0, 11 do    --DW 9->11
     Statistics[i] = 0

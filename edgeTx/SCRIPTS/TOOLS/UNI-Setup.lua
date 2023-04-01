@@ -557,7 +557,7 @@ local function refreshServoRates()
       end
     end
   end
-  lcd.drawText(midpx+wfpx*8, hfpxLast, "script ver:" ..version, smSiz + RIGHT)
+  lcd.drawText(midpx+wfpx*8, hfpxLast, "script ver: " ..version, smSiz + RIGHT)
   lcd.drawText(LCD_W, 0, "2/3", smSiz + RIGHT)
 end ---- END RX Servo Rates Page-1 ----
 
@@ -816,10 +816,10 @@ local function init()
   RxType[8] = "Type[8]"  --Future Placeholder
   RxType[9] = "Type[9]"  --Future Placeholder
 
-  Mode[0] = "V1FCC"
-  Mode[1] = "V1_EU"
-  Mode[2] = "V2FCC"
-  Mode[3] = "V2_EU"
+  Mode[0] = "V1-FCC"
+  Mode[1] = "V1-EU"
+  Mode[2] = "V2-FCC"
+  Mode[3] = "V2-EU"
 
   for i = 0, 9 do
     Bits[i]=math.pow(2,i)
@@ -838,7 +838,8 @@ local function init()
   if LCD_H == 64 then
     hfpx = 8
     hfpxLast = hfpx*7
-  else hfpx = LCD_H/10
+  else
+    hfpx = LCD_H/10
     hfpxLast = hfpx*9
   end
 
