@@ -756,7 +756,7 @@ end
 
 local function splash()
   lcd.drawText(midpx-wfpx*4.8, hfpx,"UNI RX Setup", bigSiz)
-  lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version " ..version ..")", smSiz)
+  lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version: " ..version ..")", smSiz)
   lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz)
   lcd.drawText(xpos_L, hfpxLast, "Developer MikeBlandford", txtSiz)
   start = start + 1

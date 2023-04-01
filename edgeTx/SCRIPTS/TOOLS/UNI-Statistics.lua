@@ -244,8 +244,8 @@ local function hoptable()
 end	-- END Channel Hop Count Page-3 --
 
 local function splash()
-  lcd.drawText(midpx-wfpx*5.8, hfpx,"RX Statistics", bigSiz)
-  lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version " ..version ..")", smSiz)
+  lcd.drawText(midpx-wfpx*5.8, hfpx,"UNI RX Statistics", bigSiz)
+  lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version: " ..version ..")", smSiz)
   lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz)
   lcd.drawText(xpos_L, hfpxLast, "Dev's Mike Blandford/DW", txtSiz)
   start = start + 1
