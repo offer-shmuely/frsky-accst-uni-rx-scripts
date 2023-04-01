@@ -336,14 +336,15 @@ local function run(event)
       lcd.setColor(TEXT_INVERTED_BGCOLOR, ThmTexInvBgCol)
     else
       lcd.setColor(CUSTOM_COLOR, GRAY1)
-      lcd.drawFilledRectangle(0, 0, LCD_W, LCD_H, CUSTOM_COLOR)     --Backround Area
+      lcd.drawFilledRectangle(0, 0, LCD_W, LCD_H, CUSTOM_COLOR)     --Background Area
       if ValidRead == 1 and ValidValue ==0 then
         lcd.setColor(CUSTOM_COLOR, RED)                             --Title Bar for LOCKED
       else
         lcd.setColor(CUSTOM_COLOR, GREEN1)
       end
-        lcd.drawFilledRectangle(0, 0, LCD_W, 28, CUSTOM_COLOR)      --Title Bar
-        lcd.drawRectangle(0, 26, LCD_W, 2, BLACK, 2)                --Separator Line
+      lcd.drawFilledRectangle(0, 0, LCD_W, 25, CUSTOM_COLOR)        --Title Bar
+      lcd.setColor(CUSTOM_COLOR, BLACK)
+      lcd.drawRectangle(0, 25, LCD_W, 2, CUSTOM_COLOR, 2)           --Separator Line
     end
   end
 
