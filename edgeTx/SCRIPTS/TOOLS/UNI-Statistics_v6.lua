@@ -1,4 +1,5 @@
--- TNS|__UNI-Stats V7-dev1|TNE  -- must stay above line 15 to be recognized by OTX
+-- TNS|__UNI-Stats V7-dev2|TNE  -- must stay above line 15 to be recognized by OTX
+
 -- D8R-II, D8R-IIplus, D8R-XP or D4R-II configuration program for use with the firmware developed by Mike Blandford
 -- Conversion from Basic D8rD16.bas (ErskyTx) to lua D8rD16.lua (OpenTx) code with Avionic78, Dean Church and dev.fred contributions
 -- D8rD16v5.lua
@@ -21,7 +22,7 @@
 
 local version = "6"
 local splashTime = 40 --<< Change value for splash screen timeout at startup (value of 20 = 1 second)
-local color = 1 --<< Changing value to 0 will disable color on 480 wide screens
+local use_color = 1 --<< Changing value to 0 will disable color on 480 wide screens
 local Statistics = {}
 local StatRead = {}
 local RxType = {}
@@ -43,9 +44,15 @@ local Uid1 = 0
 local line = 0
 local colorText = BLACK
 
+-- safe set color for b&w radio
+local function setCustomColor(newColor)
+    if LCD_W == 480 and use_color ~= 0 then
+        lcd.setColor(CUSTOM_COLOR, newColor)
+    end
+end
 local function displayStats(item, row)
   dSy = hfpx * (row -1)
-  lcd.setColor(CUSTOM_COLOR, colorText)
+    setCustomColor(colorText)
   lcd.drawNumber(xpos_R, dSy+hfpx, Statistics[item], txtSiz_R + StatRead[item])
 end
 
@@ -70,19 +77,19 @@ local function refreshStats()
           value = value / 256
           if x < 12 then     --DW 10->12
             Statistics[x] = value
-            StatRead[0] = BLACK
-            StatRead[1] = BLACK
-            StatRead[2] = BLACK
-            StatRead[3] = BLACK
-            StatRead[4] = BLACK
-            StatRead[5] = BLACK
-            StatRead[6] = BLACK
-            StatRead[7] = BLACK
-            StatRead[8] = BLACK
-            StatRead[9] = BLACK
-            StatRead[10] =BLACK
-            StatRead[11] =BLACK
-            StatRead[x] = WHITE
+            StatRead[0] = 0
+            StatRead[1] = 0
+            StatRead[2] = 0
+            StatRead[3] = 0
+            StatRead[4] = 0
+            StatRead[5] = 0
+            StatRead[6] = 0
+            StatRead[7] = 0
+            StatRead[8] = 0
+            StatRead[9] = 0
+            StatRead[10] = 0
+            StatRead[11] = 0
+            StatRead[x] = INVERS
           end
         end
       end
@@ -92,15 +99,14 @@ local function refreshStats()
 end
 
 local function RecStat()
-  lcd.setColor(CUSTOM_COLOR, colorText)
-  lcd.drawText(midpx-wfpx*5.1, 0, "RX  STATISTICS", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*1, "Lost Pkts Total", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*2, "CRC Errors Total", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*3, "Lost Frames   %", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*4, "LBT Blocks", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*5, "Antenna Swaps", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*6, "Valid Ant1 Pkts", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*7, "Valid Ant2 Pkts", txtSiz + CUSTOM_COLOR)
+  lcd.drawText(midpx-wfpx*5.1, 0, "RX  STATISTICS", txtSiz)
+  lcd.drawText(xpos_L, hfpx*1, "Lost Pkts Total", txtSiz)
+  lcd.drawText(xpos_L, hfpx*2, "CRC Errors Total", txtSiz)
+  lcd.drawText(xpos_L, hfpx*3, "Lost Frames   %", txtSiz)
+  lcd.drawText(xpos_L, hfpx*4, "LBT Blocks", txtSiz)
+  lcd.drawText(xpos_L, hfpx*5, "Antenna Swaps", txtSiz)
+  lcd.drawText(xpos_L, hfpx*6, "Valid Ant1 Pkts", txtSiz)
+  lcd.drawText(xpos_L, hfpx*7, "Valid Ant2 Pkts", txtSiz)
 
   displayStats(0,1)     -- Lost Packets
   displayStats(1,2)     -- CRC Errors
@@ -110,17 +116,16 @@ local function RecStat()
   displayStats(10,6)    -- Display Numeric Antenna1 Frames
   displayStats(11,7)    -- Display Numeric Antenna2 Frames
 
-  lcd.setColor(CUSTOM_COLOR, colorText)
-  lcd.drawText(LCD_W, 0, "1/3", smSiz_R + CUSTOM_COLOR)
+    setCustomColor(colorText)
+  lcd.drawText(LCD_W, 0, "1/3", smSiz_R)
 end	-- END Statistics Page-1 --
 
 local function RecInfo()
-  lcd.setColor(CUSTOM_COLOR, colorText)
-  lcd.drawText(midpx-wfpx*5.1, 0, "RECEIVER  INFO", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*1, "Type", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*2, "Bind", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*3, "Version", txtSiz + CUSTOM_COLOR)
-  lcd.drawText(xpos_L, hfpx*4, "Average Pkt Time", txtSiz + CUSTOM_COLOR)
+  lcd.drawText(midpx-wfpx*5.1, 0, "RECEIVER  INFO", txtSiz)
+  lcd.drawText(xpos_L, hfpx*1, "RX Type", txtSiz)
+  lcd.drawText(xpos_L, hfpx*2, "Bind Protocol", txtSiz)
+  lcd.drawText(xpos_L, hfpx*3, "Firmware Version", txtSiz)
+  lcd.drawText(xpos_L, hfpx*4, "Average Pkt Time", txtSiz)
 
   if Statistics[9] > 0.51 then       
     if Statistics[9] < 10 then
@@ -138,8 +143,8 @@ local function RecInfo()
   displayStats(7,3)      -- Display Version
   displayStats(3,4)      -- Average Pkt Time
 
-  lcd.drawText(xpos_R, hfpxLast, "UNI-RX Statistics lua Ver_" ..version, smSiz_R + CUSTOM_COLOR)
-  lcd.drawText(LCD_W, 0, "2/3", smSiz_R + CUSTOM_COLOR)
+  lcd.drawText(xpos_R, hfpxLast, "script version: " ..version, smSiz_R)
+  lcd.drawText(LCD_W, 0, "2/3", smSiz_R)
 end	-- END Statistics Page-2 --
 
 -- Page-3 Channel Hop Count --
@@ -250,7 +255,7 @@ local function hoptable()
 end	-- END Channel Hop Count Page-3 --
 
 local function splash()
-  lcd.setColor(CUSTOM_COLOR, colorText)
+  setCustomColor(colorText)
   lcd.drawText(midpx-wfpx*5.8, hfpx,"RX Statistics", bigSiz + CUSTOM_COLOR)
   lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version " ..version ..")", smSiz + CUSTOM_COLOR)
   lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz + CUSTOM_COLOR)
@@ -333,7 +338,7 @@ end
 
 local function run(event)
   lcd.clear()
-  if LCD_W == 480 and color ~= 0 then
+  if LCD_W == 480 and use_color ~= 0 then
     local BLUE1 = lcd.RGB(0x1E, 0x88, 0xE5)
     local GOLD1 = lcd.RGB(0xF9, 0xC4, 0x40)
     local GRAY1 = lcd.RGB(0x90, 0xA4, 0xAE)
@@ -344,7 +349,7 @@ local function run(event)
       ThmTexInvBgCol = lcd.getColor(TEXT_INVERTED_BGCOLOR)
     end
     if start < splashTime then 
-      lcd.setColor(CUSTOM_COLOR, BLUE1)
+      setCustomColor(BLUE1)
       lcd.drawFilledRectangle(0, 0, LCD_W, LCD_H, CUSTOM_COLOR)     --Splash Page
       --lcd.setColor(TEXT_COLOR, BLACK)
       --lcd.setColor(TEXT_INVERTED_COLOR, WHITE)
@@ -354,9 +359,9 @@ local function run(event)
       --lcd.setColor(TEXT_INVERTED_COLOR, ThmTexInvCol)
       --lcd.setColor(TEXT_INVERTED_BGCOLOR, ThmTexInvBgCol)
     else
-      lcd.setColor(CUSTOM_COLOR, GRAY1)
+      setCustomColor(GRAY1)
       lcd.drawFilledRectangle(0, 0, LCD_W, LCD_H, CUSTOM_COLOR)     --Backround Area
-      lcd.setColor(CUSTOM_COLOR, BLUE1)
+        setCustomColor(BLUE1)
       lcd.drawFilledRectangle(0, 0, LCD_W, 28, CUSTOM_COLOR)        --Title Bar
       lcd.drawRectangle(0, 26, LCD_W, 2, BLACK, 2)                  --Separator Line
     end
