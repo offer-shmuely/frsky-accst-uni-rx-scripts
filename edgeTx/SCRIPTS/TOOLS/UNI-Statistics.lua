@@ -1,4 +1,4 @@
--- TNS|UNI Statistics v6|TNE
+-- TNS|UNI Stats v6|TNE
 
 -- D8R-II, D8R-IIplus, D8R-XP or D4R-II configuration program for use with the firmware developed by Mike Blandford
 -- Conversion from Basic D8rD16.bas (ErskyTx) to lua D8rD16.lua (OpenTx) code with Avionic78, Dean Church and dev.fred contributions
@@ -244,7 +244,7 @@ local function hoptable()
 end	-- END Channel Hop Count Page-3 --
 
 local function splash()
-  lcd.drawText(midpx-wfpx*5.8, hfpx,"UNI RX Statistics", bigSiz)
+  lcd.drawText(midpx-wfpx*5.8, hfpx,"RX Statistics", bigSiz)
   lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version: " ..version ..")", smSiz)
   lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz)
   lcd.drawText(xpos_L, hfpxLast, "Dev's Mike Blandford/DW", txtSiz)
@@ -300,14 +300,15 @@ local function init()
   if LCD_H == 64 then
     hfpx = 8
     hfpxLast = hfpx*7
-  else hfpx = LCD_H/10
+  else
+    hfpx = LCD_H/12
     hfpxLast = hfpx*9
   end
 
   if LCD_W == 480 then
     posrep = 204
     wfpx = 18
-    txtSiz = MIDSIZE
+    txtSiz = 0 -- MIDSIZE
     smSiz = 0
     bigSiz = DBLSIZE
   else

@@ -314,7 +314,7 @@ local function refreshSetup()
     attr = INVERS
   end
   if Stat9Read == 1 then
-    lcd.drawText(xpos_R, ty, "RESET NOW", attr + txtSiz_R)
+    lcd.drawText(xpos_R, ty, "RESET", attr + txtSiz_R)
   end
 
   ty = hfpx*3
@@ -839,14 +839,14 @@ local function init()
     hfpx = 8
     hfpxLast = hfpx*7
   else
-    hfpx = LCD_H/10
+    hfpx = LCD_H/12
     hfpxLast = hfpx*9
   end
 
   if LCD_W == 480 then
     posrep = 204
     wfpx = 18
-    txtSiz = MIDSIZE
+    txtSiz = 0 -- MIDSIZE
     smSiz = 0
     bigSiz = DBLSIZE
   else
