@@ -10,3 +10,5 @@ https://alofthobbies.com/collections/frsky-accst-receivers/products/uni-rx-unive
 
 2023 Aloft Hobbies all rights reserved.
 
+wiki:
+https://github.com/offer-shmuely/frsky-accst-uni-rx-scripts/wiki
