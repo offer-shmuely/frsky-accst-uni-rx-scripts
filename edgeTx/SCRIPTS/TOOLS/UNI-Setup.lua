@@ -1,8 +1,8 @@
+-- TNS|UNI Setup v4|TNE
+
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V3 RX8RPRO corrected, RX8R added, whitespace reformat-Mike Blandford
 -- V4 RX4R/6R and XSR added,options Invert SBUS,CPPM Enable added,New page-Rx Servo Rates,Misc options as N/A by RX firmware detected,Color added,D8/D4 now work need ver_57 by MikeB + MRC3742
-
-local toolName = "TNS|UNI-Setup V4|TNE"
 
 local version = "4"
 local splashTime = 40 --<< Change value for splash screen timeout at startup (value of 20 = 1 second)
@@ -293,7 +293,7 @@ local function refreshSetup()
   if Stat7Read == 1 then
     if Stat7Value > 2 then
       s7v = math.floor(Stat7Value+0.5)
-      lcd.drawText(midpx+wfpx*1.8, ty, "V_"..s7v, smSiz + LEFT)
+      lcd.drawText(midpx+wfpx*1.8, ty, "v"..s7v, smSiz + LEFT)
     else
       Stat7Read = 0
     end
@@ -318,7 +318,7 @@ local function refreshSetup()
   end
 
   ty = hfpx*3
-  lcd.drawText(xpos_L, ty, "Tuning", txtSiz)
+  lcd.drawText(xpos_L, ty, "Auto Tuning", txtSiz)
   if TuneOffRead == 1 then
     tvalue = TuneOffset
     if tvalue > 128 then
@@ -557,7 +557,7 @@ local function refreshServoRates()
       end
     end
   end
-  lcd.drawText(midpx+wfpx*8, hfpxLast, "UNI-RX Setup lua Ver_" ..version, smSiz + RIGHT)
+  lcd.drawText(midpx+wfpx*8, hfpxLast, "script ver: " ..version, smSiz + RIGHT)
   lcd.drawText(LCD_W, 0, "2/3", smSiz + RIGHT)
 end ---- END RX Servo Rates Page-1 ----
 
@@ -755,8 +755,8 @@ local function refreshresetting()
 end
 
 local function splash()
-  lcd.drawText(midpx-wfpx*4.8, hfpx,"RX Setup", bigSiz)
-  lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version " ..version ..")", smSiz)
+  lcd.drawText(midpx-wfpx*4.8, hfpx,"UNI RX Setup", bigSiz)
+  lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version: " ..version ..")", smSiz)
   lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz)
   lcd.drawText(xpos_L, hfpxLast, "Developer MikeBlandford", txtSiz)
   start = start + 1
@@ -816,10 +816,10 @@ local function init()
   RxType[8] = "Type[8]"  --Future Placeholder
   RxType[9] = "Type[9]"  --Future Placeholder
 
-  Mode[0] = "V1FCC"
-  Mode[1] = "V1_EU"
-  Mode[2] = "V2FCC"
-  Mode[3] = "V2_EU"
+  Mode[0] = "V1-FCC"
+  Mode[1] = "V1-EU"
+  Mode[2] = "V2-FCC"
+  Mode[3] = "V2-EU"
 
   for i = 0, 9 do
     Bits[i]=math.pow(2,i)
@@ -838,14 +838,15 @@ local function init()
   if LCD_H == 64 then
     hfpx = 8
     hfpxLast = hfpx*7
-  else hfpx = LCD_H/10
+  else
+    hfpx = LCD_H/12
     hfpxLast = hfpx*9
   end
 
   if LCD_W == 480 then
     posrep = 204
     wfpx = 18
-    txtSiz = MIDSIZE
+    txtSiz = 0 -- MIDSIZE
     smSiz = 0
     bigSiz = DBLSIZE
   else
@@ -873,7 +874,7 @@ local function run(event)
       ThmTexInvCol = lcd.getColor(TEXT_INVERTED_COLOR)
       ThmTexInvBgCol = lcd.getColor(TEXT_INVERTED_BGCOLOR)
     end
-    if start < splashTime then 
+    if start < splashTime then
       lcd.setColor(CUSTOM_COLOR, GOLD1)
       lcd.drawFilledRectangle(0, 0, LCD_W, LCD_H, CUSTOM_COLOR)     --Splash Page
       lcd.setColor(TEXT_COLOR, BLACK)
@@ -885,14 +886,15 @@ local function run(event)
       lcd.setColor(TEXT_INVERTED_BGCOLOR, ThmTexInvBgCol)
     else
       lcd.setColor(CUSTOM_COLOR, GRAY1)
-      lcd.drawFilledRectangle(0, 0, LCD_W, LCD_H, CUSTOM_COLOR)     --Backround Area
+      lcd.drawFilledRectangle(0, 0, LCD_W, LCD_H, CUSTOM_COLOR)     --Background Area
       if Resetting > 0 then
         lcd.setColor(CUSTOM_COLOR, RED)                             --Title Bar for Reset
       else
         lcd.setColor(CUSTOM_COLOR, GOLD1)
       end
-        lcd.drawFilledRectangle(0, 0, LCD_W, 28, CUSTOM_COLOR)      --Title Bar
-        lcd.drawRectangle(0, 26, LCD_W, 2, BLACK, 2)                --Separator Line
+      lcd.drawFilledRectangle(0, 0, LCD_W, 25, CUSTOM_COLOR)        --Title Bar
+      lcd.setColor(CUSTOM_COLOR, BLACK)
+      lcd.drawRectangle(0, 25, LCD_W, 2, CUSTOM_COLOR, 2)           --Separator Line
     end
   end
 
