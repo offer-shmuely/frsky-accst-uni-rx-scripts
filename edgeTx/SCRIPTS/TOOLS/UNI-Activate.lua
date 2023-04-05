@@ -3,10 +3,14 @@
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V2 Activation Code numbers blinking when selected to change, Rx disconnected clears screen, Whitespace reformat, Misc cosmetic changes, Color added by MRC3742
 
-
 local version = "2"
-local splashTime = 40 --<< Change value for splash screen timeout at startup (value of 20 = 1 second)
-local color = 1 --<< Changing value to 0 will disable color on 480 wide screens
+
+-- User adjustable settings --
+local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
+local use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
+local largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
+-- For proper script operation Do NOT change values below this line
+
 local Code = {}
 local HexChars = {}
 local HexText = {}
@@ -251,7 +255,7 @@ lcd.drawText(xpos_L, hfpx*2, "Rx Code:", txtSiz)
 end -- END RX Setup Page-0 --
 
 local function splash()
-  lcd.drawText(midpx-wfpx*5.8, hfpx,"UNI RX Activation", bigSiz)
+  lcd.drawText(midpx-wfpx*5.8, hfpx,"RX Activation", bigSiz)
   lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version: " ..version ..")", smSiz)
   lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz)
   lcd.drawText(xpos_L, hfpxLast, "Developer MikeBlandford", txtSiz)
@@ -291,14 +295,22 @@ local function init()
   if LCD_H == 64 then
     hfpx = 8
     hfpxLast = hfpx*7
-  else hfpx = LCD_H/10
+  elseif largeText == 1 then
+    hfpx = LCD_H/10
     hfpxLast = hfpx*9
+  else
+    hfpx = LCD_H/12
+    hfpxLast = hfpx*11
   end
 
   if LCD_W == 480 then
     posrep = 204
     wfpx = 18
-    txtSiz = MIDSIZE
+      if largeText == 1 then
+        txtSiz = MIDSIZE
+      else
+        txtSiz = 0
+      end
     smSiz = 0
     bigSiz = DBLSIZE
   else
@@ -315,7 +327,7 @@ end
 
 local function run(event)
   lcd.clear()
-  if LCD_W == 480 and color ~= 0 then
+  if LCD_W == 480 and use_color ~= 0 then
     local BLUE1 = lcd.RGB(0x1E, 0x88, 0xE5)
     local GOLD1 = lcd.RGB(0xF9, 0xC4, 0x40)
     local GRAY1 = lcd.RGB(0x90, 0xA4, 0xAE)
