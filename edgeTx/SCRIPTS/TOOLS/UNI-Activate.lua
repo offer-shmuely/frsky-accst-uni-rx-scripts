@@ -1,7 +1,8 @@
+-- TNS|UNI Activate v2|TNE
+
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V2 Activation Code numbers blinking when selected to change, Rx disconnected clears screen, Whitespace reformat, Misc cosmetic changes, Color added by MRC3742
 
-local toolName = "TNS|UNI-Actvte V2|TNE"
 
 local version = "2"
 local splashTime = 40 --<< Change value for splash screen timeout at startup (value of 20 = 1 second)
@@ -246,12 +247,12 @@ lcd.drawText(xpos_L, hfpx*2, "Rx Code:", txtSiz)
   if SendingCode > 0 then
     lcd.drawText(midpx-wfpx*4.2, hfpx*6, "Sending Act Code", txtSiz)
   end
-  lcd.drawText(xpos_R, hfpxLast, "UNI-RX Activate lua Ver_" ..version, smSiz + RIGHT)
+  lcd.drawText(xpos_R, hfpxLast, "script ver: " ..version, smSiz + RIGHT)
 end -- END RX Setup Page-0 --
 
 local function splash()
-  lcd.drawText(midpx-wfpx*5.8, hfpx,"RX  Activation", bigSiz)
-  lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version " ..version ..")", smSiz)
+  lcd.drawText(midpx-wfpx*5.8, hfpx,"UNI RX Activation", bigSiz)
+  lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version: " ..version ..")", smSiz)
   lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz)
   lcd.drawText(xpos_L, hfpxLast, "Developer MikeBlandford", txtSiz)
   start = start + 1
@@ -324,7 +325,7 @@ local function run(event)
       ThmTexInvCol = lcd.getColor(TEXT_INVERTED_COLOR)
       ThmTexInvBgCol = lcd.getColor(TEXT_INVERTED_BGCOLOR)
     end
-    if start < splashTime then 
+    if start < splashTime then
       lcd.setColor(CUSTOM_COLOR, GREEN1)
       lcd.drawFilledRectangle(0, 0, LCD_W, LCD_H, CUSTOM_COLOR)     --Splash Page
       lcd.setColor(TEXT_COLOR, BLACK)
