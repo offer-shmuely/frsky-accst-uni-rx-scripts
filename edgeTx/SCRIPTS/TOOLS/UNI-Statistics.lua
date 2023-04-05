@@ -19,8 +19,13 @@
 -- V6  26.02.2023 - New Receivers added, Remove useless code as setup now has a separate script, Title text centered on pages, Color added - MRC3742
 
 local version = "6"
-local splashTime = 40 --<< Change value for splash screen timeout at startup (value of 20 = 1 second)
-local use_color = 1 --<< Changing value to 0 will disable color on 480 wide screens
+
+-- User adjustable settings --
+local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
+local use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
+local largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
+-- For proper script operation Do NOT change values below this line
+
 local Statistics = {}
 local StatRead = {}
 local RxType = {}
@@ -300,15 +305,22 @@ local function init()
   if LCD_H == 64 then
     hfpx = 8
     hfpxLast = hfpx*7
+  elseif largeText == 1 then
+    hfpx = LCD_H/10
+    hfpxLast = hfpx*9
   else
     hfpx = LCD_H/12
-    hfpxLast = hfpx*9
+    hfpxLast = hfpx*11
   end
 
   if LCD_W == 480 then
     posrep = 204
     wfpx = 18
-    txtSiz = 0 -- MIDSIZE
+      if largeText == 1 then
+        txtSiz = MIDSIZE
+      else
+        txtSiz = 0
+      end
     smSiz = 0
     bigSiz = DBLSIZE
   else
