@@ -1,14 +1,18 @@
-# UNI rx - ACCST  on steroids
+# UNI RX - ACCST  on steroids
 
-This project belong to Aloft Hobbies & the Mike Blandford(not to me)
+The UNI project belong to Aloft Hobbies & the Mike Blandford
 
 Mike (or should I say Sir Blandford ;) ) is the developer of this great piece of software, and we all thank him for the dedication.
 
 
-
 https://alofthobbies.com/collections/frsky-accst-receivers/products/uni-rx-universal-accst-receiver-firmware
 
-2023 Aloft Hobbies all rights reserved.
 
-wiki:
-https://github.com/offer-shmuely/frsky-accst-uni-rx-scripts/wiki
+wiki: https://github.com/offer-shmuely/frsky-accst-uni-rx-scripts/wiki
+
+firmware: https://github.com/offer-shmuely/frsky-accst-uni-rx-firmware
+
+
+
+
+2023 Aloft Hobbies all rights reserved.
