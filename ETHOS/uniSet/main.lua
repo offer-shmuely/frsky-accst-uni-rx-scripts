@@ -2,19 +2,19 @@
 
 --[[
 ###################################################################################
-#######																		#######
-#######		    					"UNIset" 								#######
-#######	  		an ETHOS lua tool to configure UNI-ACCST Receivers			#######
-#######																		#######
-#######	    		a Rx Firmware Project mainly driven by					#######
-#######			 Mike Blandfort, Engel Modellbau and Aloft Hobby			#######
+#######														#######
+#######		    					"UNIset" 						#######
+#######	  		an ETHOS lua tool to configure UNI-ACCST Receivers		#######
+#######														#######
+#######	    		a Rx Firmware Project mainly driven by				#######
+#######			 Mike Blandfort, Engel Modellbau and Aloft Hobby		#######
 #######		   thanks to all who gave valuable information & inputs 		#######
-#######																		#######
-#######																		#######
-#######																		#######
-#######	 Rev 0.85															#######
-#######	 11 April 2022														#######
-#######	 coded by Udo Nowakowski											#######
+#######														#######
+#######														#######
+#######														#######
+#######	 Rev 1.3												#######
+#######	 Feb 2023												#######
+#######	 coded by Udo Nowakowski									#######
 ###################################################################################
 
 		This program is free software: you can redistribute it and/or modify
@@ -33,10 +33,11 @@
 		0.8 		220405	roll out, no RxReset, no CRates due to missing bit32 lib
 		1.0 RC1 	220410	added multiLang & intro, channel reset, bugfixing
 		1.1 		221020	added Rx4R/Rx6R		
-		1.2		221107	SPort timing
+		1.2			221107	SPort timing
+		1.3 		230217	masking Tuning Offset 
 *************************************************************************************  								]]
 
-local translations = {en="UNIset 1.2"}
+local translations = {en="UNIset 1.3"}
 local lan								-- language 1=de
 
 local function name(widget)					-- name script
@@ -80,7 +81,8 @@ local HEADER3 <const> 		=28
 local HEADER4 <const> 		=29
 local HEADER5 <const> 		=30
 local HEADER6 <const> 		=31
-local PAGESTRG <const>	="Seite"
+
+
 
 local frame = {}							-- Sport frame data items
 local chMap = {}							-- chsannel map
@@ -104,12 +106,15 @@ local SPLASHTIME <const>  = 2
 
 local txtFields,optionLan,header = dofile("lang.lua")		-- get language file
  
+local PAGESTRG
 local locale = system.getLocale()
 	if locale =="de" then
 		lan = 1
+		PAGESTRG 	="Seite"
 --  elseif locale == "fr" then lan = 3		-- to be expanded
 	else
-		lan = 2 							-- not supported language, so has to be "en" 
+		lan = 2 							-- not supported language, so has to be "en"
+	PAGESTRG 	="Page"		
 	end
 	
 
@@ -328,6 +333,11 @@ local result
 	elseif rxIndex == CH1_8CH9_16 or rxIndex == Puls_Rate  or  rxIndex == SBusNotInvert or rxIndex == Tune_Offset   then	-- simple choice/num field	
 				value = math.floor(value / 256)	
 				RxField[rxIndex].value = bitband_FF(value)
+				
+				if rxIndex == Tune_Offset and RxField[rxIndex].value > 128 then												-- mask Offset value -127..+127
+					RxField[rxIndex].value = RxField[rxIndex].value -256
+				end
+				
 				RxField[rxIndex].formVal = RxField[rxIndex].value
 				if debug1 then print("====  READitem",RxField[rxIndex].name,RxField[rxIndex].formVal ) end
 				result = RxField[rxIndex].formVal
