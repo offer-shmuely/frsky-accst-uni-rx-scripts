@@ -17,15 +17,16 @@
 -- V5d 28.02.2022 - DW 1 more  Page added
 -- V5e 28.02.2022 - DW Page Back not working properly on Taranis
 -- V6  26.02.2023 - New Receivers added, Remove useless code as setup now has a separate script, Title text centered on pages, Color added - MRC3742
+-- V6a 21.06.2023 - R-XSR receiver added
 
-local version = "6"
+local version = "6a"
 
 -- User adjustable settings --
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
 local use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
 local largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
--- For proper script operation Do NOT change values below this line
 
+-- For proper script operation Do NOT change values below this line
 local Statistics = {}
 local StatRead = {}
 local RxType = {}
@@ -282,7 +283,7 @@ local function init()
   RxType[4] = "RX8R"
   RxType[5] = "RX4R/6  G-RX6/8"
   RxType[6] = "XSR"
-  RxType[7] = "Type[7]"  --Future Placeholder
+  RxType[7] = "R-XSR"
   RxType[8] = "Type[8]"  --Future Placeholder
   RxType[9] = "Type[9]"  --Future Placeholder
 
