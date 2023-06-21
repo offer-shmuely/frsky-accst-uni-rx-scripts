@@ -19,7 +19,7 @@
 -- V6  26.02.2023 - New Receivers added, Remove useless code as setup now has a separate script, Title text centered on pages, Color added - MRC3742
 -- V6a 21.06.2023 - R-XSR receiver added
 
-local version = "6a"
+local version = "6b"
 
 -- User adjustable settings --
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
@@ -284,8 +284,8 @@ local function init()
   RxType[5] = "RX4R/6  G-RX6/8"
   RxType[6] = "XSR"
   RxType[7] = "R-XSR"
-  RxType[8] = "Type[8]"  --Future Placeholder
-  RxType[9] = "Type[9]"  --Future Placeholder
+  RxType[8] = "Type[9]"  --Future Placeholder
+  RxType[9] = "Type[10]"  --Future Placeholder
 
   Mode[0] = "V1-FCC"
   Mode[1] = "V1-EU"

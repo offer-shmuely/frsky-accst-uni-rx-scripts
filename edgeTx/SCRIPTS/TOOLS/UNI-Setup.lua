@@ -3,9 +3,9 @@
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V3 RX8RPRO corrected, RX8R added, whitespace reformat-Mike Blandford
 -- V4 RX4R/6R and XSR added,options Invert SBUS,CPPM Enable added,New page-Rx Servo Rates,Misc options as N/A by RX firmware detected,Color added,D8/D4 now work need ver_57 by MikeB + MRC3742
--- V4a 21.06.2023 R-XSR receiver added
+-- V4b 21.06.2023 R-XSR receiver added with options to include Invert SBUS and CPPM Enable
 
-local version = "4a"
+local version = "4b"
 
 -- User adjustable settings --
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
@@ -165,13 +165,13 @@ local function changeSetup()
     end
 
   elseif SelectedItem == 5 then
-    if t == 0 or t == 3 or t == 5 or t == 7 then  --D8R/D4R or RX8R-PRO Receivers or RX4R/6R or R-XSR
+    if t == 0 or t == 3 or t == 5 or t == 7 then  --D8R/D4R or RX8R-PRO or RX4R/6R or R-XSR Receivers
       InvSbusRead = 0
       updateValue(InvSbusValue, 0xEA)
     end
 
   elseif SelectedItem == 6 then
-    if t == 0 or t == 2 then  --D8R/D4R or X4R/X4R-SB Receivers
+    if t == 0 or t == 2 or t == 7 then  --D8R/D4R or X4R/X4R-SB or R-XSR Receivers
       CppmRead = 0
       updateValue(CppmValue, 0xE3)
     end
@@ -412,7 +412,7 @@ local function refreshSetup()
     if t == 0 then --D8R/D4R Receiver
       lcd.drawText(xpos_R, ty + advRow, OnOff[InvSbusValue], attr + txtSiz_R)
       skipItem = 0
-    elseif t == 3 or t == 5 or t == 7 then --RX8R-PRO Receiver or RX4R/6R or R-XSR
+    elseif t == 3 or t == 5 or t == 7 then --RX8R-PRO or RX4R/6R or R-XSR Receiver
       if Sbus4Value == 1 and InvSbusValue == 1 then
         sendWrite(0x00EA)
         InvSbusValue = 0
@@ -442,7 +442,7 @@ local function refreshSetup()
     skipItem = 1
   end
   if CppmRead == 1 then
-    if t == 0 or t == 2 then --D8R/D4R, X4R/X4R-SB Receivers
+    if t == 0 or t == 2 or t == 7 then --D8R/D4R or X4R/X4R-SB or R-XSR Receivers
       lcd.drawText(xpos_R, ty + advRow, OnOff[CppmValue], attr + txtSiz_R)
     elseif t == 6 then  -- XSR Receiver - Software set to always ON
       lcd.drawText(xpos_R, ty, " ON ", attr + txtSiz_R)
@@ -819,8 +819,8 @@ local function init()
   RxType[5] = "RX4R/6  G-RX6/8"
   RxType[6] = "XSR"
   RxType[7] = "R-XSR"
-  RxType[8] = "Type[8]"  --Future Placeholder
-  RxType[9] = "Type[9]"  --Future Placeholder
+  RxType[8] = "Type[9]"  --Future Placeholder
+  RxType[9] = "Type[10]"  --Future Placeholder
 
   Mode[0] = "V1-FCC"
   Mode[1] = "V1-EU"
