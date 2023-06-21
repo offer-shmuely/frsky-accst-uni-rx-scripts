@@ -9,8 +9,8 @@ local version = "2"
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
 local use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
 local largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
--- For proper script operation Do NOT change values below this line
 
+-- For proper script operation Do NOT change values below this line
 local Code = {}
 local HexChars = {}
 local HexText = {}
