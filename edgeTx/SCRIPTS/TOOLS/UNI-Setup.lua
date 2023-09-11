@@ -5,7 +5,7 @@
 -- V4 RX4R/6R and XSR added,options Invert SBUS,CPPM Enable added,New page-Rx Servo Rates,Misc options as N/A by RX firmware detected,Color added,D8/D4 now work need ver_57 by MikeB + MRC3742
 -- V4b 21.06.2023 R-XSR receiver added with options to include Invert SBUS and CPPM Enable
 
-local version = "4e"
+local version = "4f"
 
 -- User adjustable settings --
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
@@ -902,9 +902,14 @@ local function init()
     hfpxLast = hfpx*11
   end
 
-  if LCD_W == 480 then
-    posrep = 204
-    wfpx = 18
+  if LCD_W >= 480 then
+    posrep = LCD_W*0.425
+    if LCD_W == 800 then
+      wfpx = 28
+      largeText = 0
+    else
+      wfpx = 18
+    end
       if largeText == 1 then
         txtSiz = MIDSIZE
       else
@@ -927,7 +932,7 @@ end
 
 local function run(event)
   lcd.clear()
-  if LCD_W == 480 and use_color ~= 0 then
+  if LCD_W >= 480 and use_color ~= 0 then
     local BLUE1 = lcd.RGB(0x1E, 0x88, 0xE5)
     local GOLD1 = lcd.RGB(0xF9, 0xC4, 0x40)
     local GRAY1 = lcd.RGB(0x90, 0xA4, 0xAE)
