@@ -1,4 +1,4 @@
--- TNS|UNI Stats v6|TNE
+-- TNS|UNI Stats v7|TNE
 
 -- D8R-II, D8R-IIplus, D8R-XP or D4R-II configuration program for use with the firmware developed by Mike Blandford
 -- Conversion from Basic D8rD16.bas (ErskyTx) to lua D8rD16.lua (OpenTx) code with Avionic78, Dean Church and dev.fred contributions
@@ -19,7 +19,7 @@
 -- V6  26.02.2023 - New Receivers added, Remove useless code as setup now has a separate script, Title text centered on pages, Color added - MRC3742
 -- V6a 21.06.2023 - R-XSR receiver added
 
-local version = "6f"
+local version = "7"
 
 -- User adjustable settings --
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
