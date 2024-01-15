@@ -5,70 +5,66 @@
 -- V4 RX4R/6R and XSR added,options Invert SBUS,CPPM Enable added,New page-Rx Servo Rates,Misc options as N/A by RX firmware detected,Color added,D8/D4 now work need ver_57 by MikeB + MRC3742
 -- V4b 21.06.2023 R-XSR receiver added with options to include Invert SBUS and CPPM Enable
 
-local version = "5"
+version = "6"
 
 -- User adjustable settings --
-local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
-local use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
-local largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
+splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
+use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
+largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
 
 -- For proper script operation Do NOT change values below this line
-local Bits = {}
-local Statistics = {}
-local StatRead = {}
-local OnOff = {}
-local RxType = {}
-local Mode = {}
-local Map = {}
-local MapRead = {}
-local txid = 0x17
-local now = getTime() -- 50
-local item = 0
-local Rate = 0
-local Crates = 0
-local Chans9_16 = 0
-local Sbus4Value = 0
-local Sbus8Value = 0
-local CppmValue = 0
-local D8cppmValue = 0
-local InvSbusValue = 0
-local TuneValue = 0
-local TuneOffset = 0
-local Stat7Value = 0 -- Firmware Version
-local Stat8Value = 0 -- Bind Mode
-local Stat9Value = 0 -- Receiver Model Type
-local NineMsRead = 0
-local CratesRead = 0
-local ChansRead = 0
-local Sbus4Read = 0
-local Sbus8Read = 0
-local CppmRead = 0
-local D8cppmRead = 0
-local InvSbusRead = 0
-local TuneRead = 0
-local TuneOffRead = 0
-local Stat7Read = 0
-local Stat8Read = 0
-local Stat9Read = 0
-local Page = 0
-local SelectedItem = 0
-local keepAlive = 1
-local skipCrates = 0
-local MapEnable = 0
-local EnableMapRead = 0
-local EditValue = 0
-local OldValue = 0
-local midpx = LCD_W / 2
-local txtSiz = 0
-local start = 0
-local Resetting = 0
+Bits = {}
+OnOff = {}
+RxType = {}
+Mode = {}
+Map = {}
+MapText = {}
+ResetText = {}
+txid = 0x17
+now = getTime() -- 50
+item = 0
+Sbus4Value = -1
+InvSbusValue = -1
+TuneOffset = -1
+Page = 0
+SelectedItem = 1
+keepAlive = 1
+skipCrates = 0
+MapEnable = -1
+EditValue = 0
+OldValue = 0
+midpx = LCD_W / 2
+txtSiz = 0
+start = 0
+Resetting = 0
+Fbus = {}
+Fbus.Value = -1
+Fbus.id = 0xEC
+Stat7Value = -1
+Stat8Value = -1
+Stat9Value = -1
+Chans9_16 = -1
+D8cppmValue = -1
+CppmValue = -1
+Sbus8Value = -1
+TuneValue = -1
+Rate = -1
+Crates = -1
+FbusOK = 0
 
 local function upField()
   if Page == 0 then
+    limit = 6
+	 if FbusOK == 0 then
+	   limit = 5
+	 end
+	 if t == 0 then
+	   limit = 7
+	 end
     if SelectedItem > 0 then
       SelectedItem = SelectedItem - 1
     else
-      SelectedItem = 7
+      SelectedItem = limit
     end
   elseif Page == 1 then
     if SelectedItem > 0 then
@@ -98,8 +94,15 @@ end
 
 local function downField()
   if Page == 0 then
+    limit = 6
+	 if FbusOK == 0 then
+	   limit = 5
+	 end
+	 if t == 0 then
+	   limit = 7
+	 end
     SelectedItem = SelectedItem + 1
-    if SelectedItem > 7 then
+    if SelectedItem > limit then
       SelectedItem = 0
     end
   elseif Page == 1 then
@@ -141,47 +144,61 @@ end
 ------------ Page-0 Receiver Setup ------------
 local function changeSetup()
   if SelectedItem == 0 then
-    if Stat9Value ~= 0 then
+    if Stat9Value ~= -1 then
       Resetting = 1
       now = getTime()
     end
 
   elseif SelectedItem == 1 then
-    TuneRead = 0
     updateValue(TuneValue, 0xE5)
+	 TuneValue = -1
 
   elseif SelectedItem == 2 then
-    ChansRead = 0
-    updateValue(Chans9_16, 0xE0)
+    if t == 7 then
+      updateValue(Fbus.Value, Fbus.id)
+      Fbus.Value = -1
+	 else
+      updateValue(Chans9_16, 0xE0)
+      Chans9_16 = -1
+	 end
 
   elseif SelectedItem == 3 then
-    if t ~= 6 then --D8R/D4R, X8R/X6R, X4R/X4R-SB, RX8R-PRO, RX8R, G-RX6/8 Receivers
-      Sbus4Read = 0
+    if t == 0 then
+      updateValue(CppmValue, 0xE3)
+		CppmValue = -1
+	 else
       updateValue(Sbus4Value, 0xE2)
+		Sbus4Value = -1
     end
 
   elseif SelectedItem == 4 then
-    if t == 0 then --D8R/D4R Receiver
-      Sbus8Read = 0
-      updateValue(Sbus8Value, 0xE1)
-    end
-
-  elseif SelectedItem == 5 then
-    if t == 0 or t == 3 or t == 5 or t == 7 then  --D8R/D4R or RX8R-PRO or RX4R/6R or R-XSR Receivers
-      InvSbusRead = 0
+   if t == 0 or t == 3 or t == 5 or t == 7 then
       updateValue(InvSbusValue, 0xEA)
-    end
+		InvSbusValue = -1
+	end
+    
+  elseif SelectedItem == 5 then
+    if t == 0 then
+      updateValue(D8cppmValue, 0xED)
+		D8cppmValue = -1
+	 elseif t == 2 or t == 7 then
+      updateValue(CppmValue, 0xE3)
+		CppmValue = -1
+	 end 
 
   elseif SelectedItem == 6 then
-    if t == 0 or t == 2 or t == 7 then --D8R/D4R or X4R/X4R-SB or R-XSR Receivers
-      CppmRead = 0
-      updateValue(CppmValue, 0xE3)
+    if t == 0 then
+      updateValue(Sbus4Value, 0xE2)
+		Sbus4Value = -1
+	 elseif FbusOK ~= 0 then
+      updateValue(Fbus.Value, Fbus.id)
+      Fbus.Value = -1
     end
-
+	 
   elseif SelectedItem == 7 then
     if t == 0 then --D8R/D4R Receivers
-      D8cppmRead = 0
-      updateValue(D8cppmValue, 0xED)
+      updateValue(Sbus8Value, 0xE1)
+	   Sbus8Value = -1
     end
   end
   now = now + 60
@@ -192,329 +209,203 @@ local function sendRead(value)
   return result
 end
 
+local function displayOption(vert, name, item, value, text)
+  lcd.drawText(xpos_L, vert, name, txtSiz)
+  attr = txtSiz_R
+  if SelectedItem == item then attr = INVERS + txtSiz_R end
+  if value ~= -1 then
+    lcd.drawText(xpos_R, vert, text[value], attr)
+  end
+end
+
 local function refreshSetup()
+  FbusOK = 0
+  if t and Stat7Value >= 80 then
+    FbusOK = 1
+  end
   if getTime() - now > 50 then
     now = now + 60
     keepAlive = 0
-    if Stat7Read == 0 then
-      result = sendRead(0x07FF)
-    elseif Stat8Read == 0 then
-      result = sendRead(0x08FF)
-    elseif Stat9Read == 0 then
-      result = sendRead(0x09FF)
-    elseif ChansRead == 0 then
-      result = sendRead(0xE0)
-    elseif Sbus8Read == 0 then
-      result = sendRead(0xE1)
-    elseif Sbus4Read == 0 then
-      result = sendRead(0xE2)
-    elseif CppmRead == 0 then
-      result = sendRead(0xE3)
-    elseif TuneOffRead == 0 then
-      result = sendRead(0xE4)
-    elseif TuneRead == 0 then
-      result = sendRead(0xE5)
-    elseif InvSbusRead == 0 then
-      result = sendRead(0xEA)
-    elseif D8cppmRead == 0 then
-      result = sendRead(0xED)
+    if Stat7Value == -1 then
+      sendRead(0x07FF)
+    elseif Stat8Value == -1 then
+      sendRead(0x08FF)
+    elseif Stat9Value == -1 then
+      sendRead(0x09FF)
+    elseif Chans9_16 == -1 then
+      sendRead(0xE0)
+    elseif Sbus8Value == -1 then
+      sendRead(0xE1)
+    elseif Sbus4Value == -1 then
+      sendRead(0xE2)
+    elseif CppmValue == -1 then
+      sendRead(0xE3)
+    elseif TuneOffset == -1 then
+      sendRead(0xE4)
+    elseif TuneValue == -1 then
+      sendRead(0xE5)
+    elseif InvSbusValue == -1 then
+      sendRead(0xEA)
+    else
+	   if t == 0 then
+	     if D8cppmValue == -1 then
+          sendRead(0xED)
+		  end
+      elseif Fbus.Value == -1 then
+        sendRead(Fbus.id)
+      end
     end
   else
     if keepAlive ~= 0 then
-      result = sportTelemetryPush(txid, 0, 0, 0)
+      sportTelemetryPush(txid, 0, 0, 0)
     end
   end
 
   local physicalId, primId, dataId, value = sportTelemetryPop()
-  if primId ~= nil then
-    if primId == 0x32 then
-      if dataId == 0x0C20 then
-        if TuneRead == 0 then
-          keepAlive = 1
-        end
+  if primId == 0x32 then
+    if dataId == 0x0C20 then
+      if TuneValue == -1 then
+        keepAlive = 1
+      end
+      x = bit32.band(value, 0x00FF)
+      value = value / 256
+      if x == 0x00FF then
         x = bit32.band(value, 0x00FF)
-        if x == 0x00FF then
-          value = value / 256
-          x = bit32.band(value, 0x00FF)
-          value = value / 256
-          if x == 7 then
-            Stat7Value = value
-            Stat7Read = 1
-          end
-          if x == 8 then
-            Stat8Value = value
-            Stat8Read = 1
-          end
-          if x == 9 then
-            Stat9Value = value
-            Stat9Read = 1
-          end
-        else
-          if x == 0x00E0 then
-            value = value / 256
-            Chans9_16 = bit32.band(value, 0x00FF)
-            ChansRead = 1
-          elseif x == 0x00E1 then
-            value = value / 256
-            Sbus8Value = bit32.band(value, 0x00FF)
-            Sbus8Read = 1
-          elseif x == 0x00E2 then
-            value = value / 256
-            Sbus4Value = bit32.band(value, 0x00FF)
-            Sbus4Read = 1
-          elseif x == 0x00E3 then
-            value = value / 256
-            CppmValue = bit32.band(value, 0x00FF)
-            CppmRead = 1
-          elseif x == 0x00E4 then
-            value = value / 256
-            TuneOffset = bit32.band(value, 0x00FF)
-            TuneOffRead = 1
-          elseif x == 0x00E5 then
-            value = value / 256
-            TuneValue = bit32.band(value, 0x00FF)
-            TuneRead = 1
-          elseif x == 0x00EA then
-            value = value / 256
-            InvSbusValue = bit32.band(value, 0x00FF)
-            InvSbusRead = 1
-          elseif x == 0x00ED then
-            value = value / 256
-            D8cppmValue = bit32.band(value, 0x00FF)
-            D8cppmRead = 1
-          end
-          now = getTime() - 55
+        value = value / 256
+        if x == 7 then
+          Stat7Value = value
         end
+        if x == 8 then
+          Stat8Value = value
+        end
+        if x == 9 then
+          Stat9Value = value
+        end
+      else
+        value = bit32.band(value, 0x00FF)
+        if x == 0x00E0 then
+          Chans9_16 = value
+        elseif x == 0x00E1 then
+          Sbus8Value = value
+        elseif x == 0x00E2 then
+          Sbus4Value = value
+        elseif x == 0x00E3 then
+          CppmValue = value
+        elseif x == 0x00E4 then
+          TuneOffset = value
+        elseif x == 0x00E5 then
+          TuneValue = value
+        elseif x == 0x00EA then
+          InvSbusValue = value
+        elseif x == 0x00ED then
+          D8cppmValue = value
+        elseif x == 0x00EC then
+          Fbus.Value = value
+        end
+        now = getTime() - 55
       end
-      refreshState = 0
     end
+    refreshState = 0
   end
 
-  if t == 0 and LCD_H == 64 then
-    ty = hfpx*.2
-    upRow = hfpx
+  attr = 0
+  lcd.drawText(midpx-wfpx*5.4, 0, "RX SETUP", txtSiz)
+  if SelectedItem == 0 then attr = INVERS end
+  lcd.drawText( midpx+wfpx*2, 0, "RESET", attr)
+
+  ty = hfpx
+  attr = 0
+  if Stat9Value > 0 then
+    if Stat9Value < 10 then
+      t = math.floor(Stat9Value-0.5) -- Determine Receiver Type for Setup Options
+      if t == 5 then
+        lcd.drawText(xpos_L, ty, RxType[t], smSiz)
+      else
+        attr = BLINK
+        lcd.drawText(xpos_L, ty, "~", attr + smSiz)
+        lcd.drawText(midpx-wfpx*7, ty, RxType[t], smSiz)
+      end
+    end
+  end
+  if Stat7Value > 2 then
+    s7v = math.floor(Stat7Value+0.5)
+    lcd.drawText( midpx+wfpx*2.2, ty, "v"..s7v, smSiz + LEFT)
   else
-    lcd.drawText(midpx-wfpx*5.4, 0, "RECEIVER  SETUP", txtSiz)
-    ty = hfpx*1.1
-    upRow = 0
+    Stat7Value = -1
   end
-
-  attr = 0
-  if Stat9Read == 1 then
-    if Stat9Value > 0 then
-      if Stat9Value < 10 then
-        t = math.floor(Stat9Value-0.5) -- Determine Receiver Type for Setup Options
-        if t == 5 then
-          lcd.drawText(xpos_L, ty, RxType[t], smSiz)
-        else
-          attr = BLINK
-          lcd.drawText(xpos_L, ty, "~", attr + smSiz)
-          lcd.drawText(midpx-wfpx*7, ty, RxType[t], smSiz)
-        end
-      end
-    end
-  end
-  attr = 0
-  if Stat7Read == 1 then
-    if Stat7Value > 2 then
-      s7v = math.floor(Stat7Value+0.5)
-        if t == 0 and LCD_W == 128 then
-          lcd.drawText(midpx-wfpx*1.4, ty, "v"..s7v, smSiz + LEFT)
-        else
-          lcd.drawText(midpx+wfpx*1.8, ty, "v"..s7v, smSiz + LEFT)
-        end
-    else
-      Stat7Read = 0
-    end
-  end
-  if Stat8Read == 1 then
-    if Stat8Value > 0 then
-      if Stat8Value < 5 then
-        m = math.floor(Stat8Value+0.5)
-        if t == 0 and LCD_W == 128 then
-          lcd.drawText(midpx+wfpx*5.2, ty, Mode[m], smSiz + RIGHT)
-        else
-          lcd.drawText(midpx+wfpx*8.2, ty, Mode[m], smSiz + RIGHT)
-        end
-      end
+  if Stat8Value > 0 then
+    if Stat8Value < 5 then
+      m = math.floor(Stat8Value+0.5)
+ 	   x = 8.2
+      lcd.drawText(midpx+wfpx*x, ty, Mode[m], smSiz + RIGHT)
     end
   end
 
-  ty = hfpx*2 - upRow
-  lcd.drawText(xpos_L, ty, "Default Settings", txtSiz)
-  attr = 0
-  if SelectedItem == 0 then
-    attr = INVERS
-  end
-  if Stat9Read == 1 then
-    lcd.drawText(xpos_R, ty, "RESET", attr + txtSiz_R)
-  end
-
-  ty = hfpx*3 - upRow
-  lcd.drawText(xpos_L, ty, "Auto Tuning", txtSiz)
-  if TuneOffRead == 1 then
+  ty = hfpx*2
+  displayOption(ty, "Auto Tuning", 1, TuneValue, OnOff)
+  if TuneOffset ~= -1 then
     tvalue = TuneOffset
     if tvalue > 128 then
       tvalue = tvalue - 256
     end
     lcd.drawNumber(midpx+wfpx*3, ty, tvalue, txtSiz_R)
   end
-  attr = 0
-  if SelectedItem == 1 then
-    attr = INVERS
-  end
-  if TuneRead == 1 then
-    lcd.drawText(xpos_R, ty, OnOff[TuneValue], attr + txtSiz_R)
-  end
 
-  ty = hfpx*4 - upRow
-  lcd.drawText(xpos_L, ty, "Servo Outputs", txtSiz)
-  attr = 0
-  if SelectedItem == 2 then
-    attr = INVERS
-    skipItem = 0
+  ty = hfpx*3
+  cvalue = Chans9_16
+  if MapEnable == 1 or MapEnable == 3 then
+    cvalue = 2
   end
-  if ChansRead == 1 then
-    if MapEnable == 1 or MapEnable == 3 then
-      lcd.drawText(xpos_R,ty,"MAPPED", attr + txtSiz_R)
-    elseif Chans9_16 == 0 then
-      lcd.drawText(xpos_R, ty,"1- 8", attr + txtSiz_R)
-    elseif Chans9_16 == 1 then
-      lcd.drawText(xpos_R,ty,"9-16", attr + txtSiz_R)
-    end
-  end
+  displayOption(ty, "Servo Outputs", 2, cvalue, MapText)
 
-  ty = hfpx*5 - upRow
+  ty = hfpx*4
   if t == 0 then --D8R/D4R Receivers
-    lcd.drawText(xpos_L, ty, "SBUS on Channel", txtSiz)
+    displayOption(ty, "S.Port Enabled", 3, CppmValue, OnOff)
   else
-    lcd.drawText(xpos_L, ty, "Servo on SBUS", txtSiz)
-  end
-  attr = 0
-  if SelectedItem == 3 then
-    attr = INVERS
-  end
-  if Sbus4Read == 1 then
-    if t ~= 6 then --X8R/X6R, X4R/X4R-SB, RX8R-PRO, RX8R, G-RX6/8 Receivers
-      if t == 0 then --D8R/D4R Receiver
-        lcd.drawText(midpx+wfpx*3.8, ty, "4", attr + txtSiz)
-        skipItem = 1
-      end
-      lcd.drawText(xpos_R, ty, OnOff[Sbus4Value], attr + txtSiz_R)
-    else
-      lcd.drawText(xpos_R, ty, "N/A", attr + txtSiz_R)
-    end
-    if SelectedItem == 4 and skipItem == 0 then
-      skipItem = 1
-      SelectedItem = 5
-    end
+    displayOption(ty, "Servo on SBUS", 3, Sbus4Value, OnOff)
   end
 
-  attr = 0
-  advRow = 0
+  ty = hfpx*5
+  value = 2
+  if t == 0 or t == 3 or t == 5 or t == 7 then --RX8R-PRO or RX4R/6R or R-XSR Receiver
+    value = InvSbusValue
+  end
+  displayOption(ty, "Invert SBUS", 4, value, OnOff)
+
+  ty = hfpx*6
+  value = 2
   if t == 0 then
-    if LCD_H >= 272 then --D8R/D4R Receivers and LCD Screen Height allows Three extra lines available
-      if SelectedItem == 4 then
-        attr = INVERS
-      end
-      advRow = hfpx
-      lcd.drawText(xpos_L, ty + advRow, "SBUS on Channel", txtSiz)
-      if Sbus8Read == 1 then
-        lcd.drawText(midpx+wfpx*3.8, ty + advRow, "8", attr + txtSiz)
-        lcd.drawText(xpos_R, ty + advRow, OnOff[Sbus8Value], attr + txtSiz_R)
-      end
-    else
-      if SelectedItem == 4 then
-        attr = INVERS
-        if Sbus8Read == 1 then
-          lcd.drawText(midpx+wfpx*3.8, ty + advRow, "8", attr + txtSiz)
-          lcd.drawText(xpos_R, ty + advRow, OnOff[Sbus8Value], attr + txtSiz_R)
-        end
-      end
-    end
+    value = D8cppmValue
+  elseif t == 2 or t == 7 then
+    value = CppmValue
   end
+  displayOption(ty, "CPPM Enable", 5, value, OnOff)
 
-  ty = hfpx*6 - upRow
-  lcd.drawText(xpos_L, ty + advRow, "Invert SBUS", txtSiz)
   attr = 0
-  if SelectedItem == 5 then
-    attr = INVERS
-  end
-  if InvSbusRead == 1 then
-    if t == 0 then --D8R/D4R Receiver
-      lcd.drawText(xpos_R, ty + advRow, OnOff[InvSbusValue], attr + txtSiz_R)
-      skipItem = 0
-    elseif t == 3 or t == 5 or t == 7 then --RX8R-PRO or RX4R/6R or R-XSR Receiver
-      if Sbus4Value == 1 and InvSbusValue == 1 then
-        sendWrite(0x00EA)
-        InvSbusValue = 0
-      elseif Sbus4Value == 1 then
-        lcd.drawText(xpos_R, ty, "N/A", attr + txtSiz_R)
-      else
-        lcd.drawText(xpos_R, ty, OnOff[InvSbusValue], attr + txtSiz_R)
-      end
-    else
-      lcd.drawText(xpos_R, ty, "N/A", attr + txtSiz_R)
-    end
-    if SelectedItem == 4 and skipItem == 1 then
-      skipItem = 0
-      SelectedItem = 3
-    end
-  end
-
-  ty = hfpx*7 - upRow
+  ty = hfpx*7
+  if SelectedItem == 6 then attr = INVERS end
   if t == 0 then
-    lcd.drawText(xpos_L, ty + advRow, "S.Port Enabled", txtSiz)
-  else
-    lcd.drawText(xpos_L, ty, "CPPM Out Enable", txtSiz)
-  end
-  attr = 0
-  if SelectedItem == 6 then
-    attr = INVERS
-    skipItem = 1
-  end
-  if CppmRead == 1 then
-    if t == 0 or t == 2 or t == 7 then --D8R/D4R or X4R/X4R-SB or R-XSR Receivers
-      lcd.drawText(xpos_R, ty + advRow, OnOff[CppmValue], attr + txtSiz_R)
-    elseif t == 6 then  -- XSR Receiver - Software set to always ON
-      lcd.drawText(xpos_R, ty, " ON ", attr + txtSiz_R)
-    else
-      lcd.drawText(xpos_R, ty, "N/A", attr + txtSiz_R)
-    end
-  end
-
-  ty = hfpx*8 - upRow
-  if t == 0 then
-    lcd.drawText(xpos_L, ty + advRow, "CPPM on Channel 1", txtSiz)
-  end
-  attr = 0
-  if SelectedItem == 7 then
-    attr = INVERS
-  end
-  if D8cppmRead == 1 then
-    if t == 0 then --D8R/D4R Receivers
-      lcd.drawText(xpos_R, ty + advRow, OnOff[D8cppmValue], attr + txtSiz_R)
-    end
+    lcd.drawText(xpos_L, ty, "SBUS on C4     C8", txtSiz)
+    if Sbus4Value ~= -1 then
+      x = 2.8
+		if LCD_W >= 480 then
+		  x = 1.8
+		end
+      lcd.drawText(midpx+wfpx*x, ty, OnOff[Sbus4Value], attr + txtSiz_R)
+	 end
+    attr = 0
+    if SelectedItem == 7 then attr = INVERS end
+    if Sbus8Value ~= -1 then
+      lcd.drawText(xpos_R, ty, OnOff[Sbus8Value], attr + txtSiz_R)
+	 end
+  elseif FbusOK ~= 0 then
+    displayOption(ty, "FBUS", 6, Fbus.Value, OnOff )
   end
 
   lcd.drawText(LCD_W, 0, "1/3", smSiz + RIGHT)
 end ---- END Receiver Setup Page-0 ----
 
 ---------- Page-1 RX Servo Rates ----------
-local function changeServoRates()
-  if SelectedItem == 0 then
-    NineMsRead = 0
-    updateValue(Rate, 0xE6)
-  else
-    bit = Bits[SelectedItem - 1]
-    newValue = bit32.bxor(Crates,bit)
-    newValue = newValue * 256
-    newValue = bit32.bor(newValue,0xE7)
-    CratesRead = 0
-    result = sendWrite(newValue)
-  end
-end
-
 local function display9_18(item)
   if bit32.band(Crates,Bits[item]) == Bits[item] then
     svalue = 9
@@ -527,31 +418,30 @@ local function display9_18(item)
   else
     dSx = (posrep / 4.1)
   end
+  dSx = (item*dSx) + (midpx-dSx*3.7)
 
   attr = txtSiz_R
   if MapEnable == 1 or MapEnable == 3 then
-    lcd.drawNumber((item*dSx) + (midpx-dSx*3.7), hfpx*4, Map[item]+1, attr)
+    thisitem = Map[item]+1
   else
     if Chans9_16 == 1 then
-      lcd.drawNumber((item*dSx) + (midpx-dSx*3.7), hfpx*4, item+9, attr)
+	   thisitem = item+9 
     else
-      lcd.drawNumber((item*dSx) + (midpx-dSx*3.7), hfpx*4, item+1, attr)
+	   thisitem = item+1
     end
   end
-  lcd.drawNumber((item*dSx) + (midpx-dSx*3.7), hfpx*5, svalue, attr)
-  if SelectedItem == item + 1 then
-    attr = attr + INVERS
-    lcd.drawNumber((item*dSx) + (midpx-dSx*3.7), hfpx*5, svalue, attr)
-  end
+  lcd.drawNumber(dSx, hfpx*4, thisitem, attr)
+  if SelectedItem == item + 1 then attr = attr + INVERS end
+  lcd.drawNumber(dSx, hfpx*5, svalue, attr)
 end
 
 local function refreshServoRates()
   if getTime() - now > 60 then
     now = now + 60
     keepAlive = 0
-    if NineMsRead == 0 then
+    if Rate == -1 then
       result = sendRead(0xE6)
-    elseif CratesRead == 0 then
+    elseif Crates == -1 then
       result = sendRead(0xE7)
     end
     if result == 0 then
@@ -559,52 +449,44 @@ local function refreshServoRates()
     end
   else
     if keepAlive ~= 0 then
-      result = sportTelemetryPush(txid, 0, 0, 0)
+      sportTelemetryPush(txid, 0, 0, 0)
     end
   end
 
   local physicalId, primId, dataId, value = sportTelemetryPop()
-  if primId ~= nil then
-    if primId == 0x32 then
-      if dataId == 0x0C20 then
-        if TuneRead == 0 then
-          keepAlive = 1
-        end
-        x = bit32.band(value, 0x00FF)
-        if x == 0x00E6 then
-          value = value / 256
-          Rate = bit32.band(value, 0x00FF)
-          NineMsRead = 1
-        elseif x == 0x00E7 then
-          value = value / 256
-          Crates = bit32.band(value, 0x01FF)
-          CratesRead = 1
-        end
-        now = getTime() - 55
+  if primId == 0x32 then
+    if dataId == 0x0C20 then
+      if TuneValue == -1 then
+        keepAlive = 1
       end
-      refreshState = 0
+      x = bit32.band(value, 0x00FF)
+      value = bit32.band(value / 256, 0x00FF)
+      if x == 0x00E6 then
+        Rate = value
+      elseif x == 0x00E7 then
+        Crates = value
+      end
+      now = getTime() - 55
     end
+    refreshState = 0
   end
 
   lcd.drawText(midpx-wfpx*5.2, 0, "RX SERVO RATES", txtSiz)
   ty = hfpx*2
   lcd.drawText(midpx-wfpx*7.5, ty, "Enable 9mS Rates", txtSiz)
-  attr = 0
-  if SelectedItem == 0 then
-    attr = INVERS
-  end
+  attr = txtSiz
+  if SelectedItem == 0 then attr = INVERS + txtSiz end
   if Rate == 0 then
-    if CratesRead == 1 then
-      lcd.drawText(midpx+wfpx*5.2, ty, "OFF", attr + txtSiz)
+    if Crates ~= -1 then
+      lcd.drawText(midpx+wfpx*5.2, ty, "OFF", attr)
       lcd.drawText(midpx-wfpx*6.6, ty+hfpx, "All Servos Now 18mS", txtSiz)
     end
     skipCrates=1
   else
-    if CratesRead == 1 then
-      lcd.drawText(midpx+wfpx*5.2, ty, " ON ", attr + txtSiz)
+    if Crates ~= -1 then
+      lcd.drawText(midpx+wfpx*5.2, ty, " ON ", attr)
       skipCrates=0
-      for item = -1, 7 do
-        item = item + 1
+      for item = 0, 8 do
         display9_18(item)
       end
     end
@@ -634,7 +516,7 @@ local function displayMap(item)
     end
   end
   lcd.drawNumber(dMx,dMy-hfpx,item+1, txtSiz_R)
-  if MapRead[item] > 0 then
+  if Map[item] ~= -1 then
     lcd.drawNumber(dMx, dMy, Map[item]+1, attr + txtSiz_R)
   end
 end
@@ -647,8 +529,8 @@ local function changeMap()
       MapEnable = bit32.bor(MapEnable, 1)
     end
     newValue = bit32.bor(MapEnable * 256, 0x00E8)
-    EnableMapRead = 0
-    result = sendWrite(newValue)
+    sendWrite(newValue)
+    MapEnable = -1
   elseif SelectedItem == 1 then
     if bit32.band(MapEnable, 2) > 0 then
       MapEnable = bit32.band(MapEnable, 1)
@@ -656,8 +538,8 @@ local function changeMap()
       MapEnable = bit32.bor(MapEnable, 2)
     end
     newValue = bit32.bor((MapEnable * 256), 0x00E8)
-    EnableMapRead = 0
-    result = sendWrite(newValue)
+    sendWrite(newValue)
+    MapEnable = -1
   else
     if EditValue == 0 then
       EditValue = 1
@@ -668,8 +550,8 @@ local function changeMap()
       if OldValue ~= Map[index] then
         newValue = bit32.bor(0xE9, index * 256)
         newValue = bit32.bor(newValue, Map[index] * 65536)
-        MapRead[index] = 0
-        result = sendWrite(newValue)
+        sendWrite(newValue)
+        Map[index] = -1
       end
     end
     now = now + 60
@@ -679,13 +561,13 @@ end
 local function refreshMap()
   if getTime() - now > 60 then
     now = now + 60
-    if EnableMapRead == 0 then
-      result = sendRead(0xE8)
+    if MapEnable == -1 then
+      sendRead(0xE8)
     else
       i = 0
       ::loop1::
-      if MapRead[i] == 0 then
-        result = sendRead(bit32.bor(0xE9, i*256))
+      if Map[i] == -1 then
+        sendRead(bit32.bor(0xE9, i*256))
         goto break1
       end
       i = i + 1
@@ -696,26 +578,18 @@ local function refreshMap()
   end
   ::break1::
   local physicalId, primId, dataId, value = sportTelemetryPop()
-  if primId ~= nil then
-    if primId == 0x32 then
-      if dataId == 0x0C20 then
+  if primId == 0x32 then
+    if dataId == 0x0C20 then
+      x = bit32.band(value, 0x00FF)
+      value = value / 256
+      if x == 0x00E8 then
+        MapEnable = bit32.band(value, 0x00FF)
+        now = getTime() - 55
+      elseif x == 0x00E9 then
         x = bit32.band(value, 0x00FF)
-        if x == 0x00E8 then
-          value = value / 256
-          MapEnable = bit32.band(value, 0x00FF)
-          EnableMapRead = 1
+        if x < 16 then
+          Map[x] = value / 256
           now = getTime() - 55
-        else
-          if x == 0x00E9 then
-            value = value / 256
-            x = bit32.band(value, 0x00FF)
-            value = value / 256
-            if x < 16 then
-              Map[x] = value
-              MapRead[x] = 1
-              now = getTime() - 55
-            end
-          end
         end
       end
     end
@@ -725,18 +599,14 @@ local function refreshMap()
   lcd.drawText(midpx-wfpx*7.5, hfpx, "Enable Servo Map", txtSiz)
   lcd.drawText(midpx-wfpx*7.5, hfpx*2, "Enable S.BUS Map", txtSiz)
   attr = 0
-  if SelectedItem == 0 then
-    attr = INVERS
-  end
-  if EnableMapRead > 0 then
+  if SelectedItem == 0 then attr = INVERS end
+  if MapEnable ~= -1 then
     lcd.drawText(midpx+wfpx*5.2, hfpx, OnOff[bit32.band(MapEnable, 1)], attr + txtSiz)
   end
 
   attr = 0
-  if SelectedItem == 1 then
-    attr = INVERS
-  end
-  if EnableMapRead > 0 then
+  if SelectedItem == 1 then attr = INVERS end
+  if MapEnable ~= -1 then
     lcd.drawText(midpx+wfpx*5.2, hfpx*2, OnOff[bit32.band(MapEnable, 2)/2], attr + txtSiz)
   end
 
@@ -750,33 +620,18 @@ local function refreshresetting()
   ty = hfpx*2
   lcd.drawText(midpx-wfpx*5.4, 0, "RECEIVER  RESET", txtSiz)
   lcd.drawText(midpx-wfpx*3, ty, "Resetting", txtSiz)
-  lcd.drawNumber(midpx+wfpx*.8, ty+hfpx, 27-Resetting, txtSiz_R)
+  lcd.drawNumber(midpx+wfpx*.8, ty+hfpx, 28-Resetting, txtSiz_R)
   if getTime() - now > 50 then
     now = now + 60
-    if Resetting == 1 then
-      Resetting = 2
-      sendWrite(0x00E0)
-    elseif Resetting == 2 then
-      Resetting = 3
-      sendWrite(0x00E1)
-    elseif Resetting == 3 then
-      Resetting = 4
-      sendWrite(0x00E2)
-    elseif Resetting == 4 then
-      Resetting = 5
-      sendWrite(0x00E3)
-    elseif Resetting == 5 then
+    if Resetting == 5 then
       Resetting = 6
       sendWrite(0x01E5)
-    elseif Resetting == 6 then
-      Resetting = 7
-      sendWrite(0x00E6)
-    elseif Resetting == 7 then
-      Resetting = 8
-      sendWrite(0x00E7)
-    elseif Resetting == 8 then
-      Resetting = 9
-      sendWrite(0x00E8)
+    elseif Resetting < 5 then
+      sendWrite(0x00DF+Resetting)
+      Resetting = Resetting + 1
+    elseif Resetting < 9 then
+      sendWrite(0x00E0+Resetting)
+      Resetting = Resetting + 1
     elseif Resetting == 9 then
       Resetting = 10
       sendWrite(0x00EA)
@@ -786,43 +641,49 @@ local function refreshresetting()
     elseif Resetting < 27 then
       ti = Resetting - 11
       Resetting = Resetting + 1
-      newValue = bit32.bor(0xE9, ti * 256)
-      newValue = bit32.bor(newValue, ti * 65536)
+		ti = ti + ti * 256
+      newValue = 0xE9 + ti * 256
       sendWrite(newValue)
+    elseif Resetting == 27 and FbusOK ~= 0 then
+      Resetting = 28
+      sendWrite(0x00EC)
     else
       Resetting = 0
-      TuneRead = 0
-      ChansRead = 0
-      Sbus4Read = 0
-      Sbus8Read = 0
-      CppmRead = 0
-      D8cppmRead = 0
-      InvSbusRead = 0
-      NineMsRead = 0
-      CratesRead = 0
-      EnableMapRead = 0
-      MapEnable = 0
+      TuneValue = -1
+      Sbus4Value = -1
+      Sbus8Value = -1
+      CppmValue = -1
+      D8cppmValue = -1
+      InvSbusValue = -1
+      Rate = -1
+      Crates = -1
+		MapEnable = -1
+      Fbus.Value = -1
+      D8cppmValue = -1
+      CppmValue = -1
+      Chans9_16 = -1
       for i = 0, 15 do
-        Map[i] = 0
-        MapRead[i] = 0
+        Map[i] = -1
       end
     end
   end
-end
-
-local function splash()
-  lcd.drawText(midpx-wfpx*4.8, hfpx,"RX Setup", bigSiz)
-  lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version: " ..version ..")", smSiz)
-  lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz)
-  lcd.drawText(xpos_L, hfpxLast, "Developer MikeBlandford", txtSiz)
-  start = start + 1
 end
 
 local function change()
   if Page == 0 then
     changeSetup()
   elseif Page == 1 then
-    changeServoRates()
+    if SelectedItem == 0 then
+      updateValue(Rate, 0xE6)
+	   Rate = -1
+    else
+      bit = Bits[SelectedItem - 1]
+      newValue = bit32.bxor(Crates,bit)
+      newValue = newValue * 256
+      newValue = bit32.bor(newValue,0xE7)
+      sendWrite(newValue)
+      Crates = -1
+    end
   elseif Page == 2 then
     changeMap()
   end
@@ -860,6 +721,7 @@ end
 local function init()
   OnOff[0]= "OFF"
   OnOff[1]= " ON "
+  OnOff[2]= "N/A"
 
   RxType[0] = "D8R/D4R"
   RxType[1] = "X8R/X6R"
@@ -872,34 +734,35 @@ local function init()
   RxType[8] = "Type[9]"  --Future Placeholder
   RxType[9] = "Type[10]"  --Future Placeholder
 
-  Mode[0] = "V1-FCC"
+  Mode[0] = "V1FCC"
   Mode[1] = "V1-EU"
-  Mode[2] = "V2-FCC"
+  Mode[2] = "V2FCC"
   Mode[3] = "V2-EU"
+
+  MapText[0] = "1- 8"
+  MapText[1] = "9-16"
+  MapText[2] = "MAPPED"
+
+  ResetText[0] = "RESET"
+
 
   for i = 0, 9 do
     Bits[i]=math.pow(2,i)
   end
 
-  for i = 0, 9 do
-    Statistics[i] = 0
-    StatRead[i] = 0
-  end
-
   for i = 0, 15 do
-    Map[i] = 0
-    MapRead[i] = 0
+    Map[i] = -1
   end
 
   if LCD_H == 64 then
     hfpx = 8
     hfpxLast = hfpx*7
-  elseif largeText == 1 then
+--  elseif largeText == 1 then
+--    hfpx = LCD_H/10
+--    hfpxLast = hfpx*9
+  else
     hfpx = LCD_H/10
     hfpxLast = hfpx*9
-  else
-    hfpx = LCD_H/12
-    hfpxLast = hfpx*11
   end
 
   if LCD_W >= 480 then
@@ -908,7 +771,7 @@ local function init()
       wfpx = 28
       largeText = 0
     else
-      wfpx = 18
+      wfpx = 18.35
     end
       if largeText == 1 then
         txtSiz = MIDSIZE
@@ -1002,7 +865,11 @@ local function run(event)
   end
 
   if start < splashTime then
-    splash()
+    lcd.drawText(midpx-wfpx*4.8, hfpx,"RX Setup", bigSiz)
+    lcd.drawText(midpx-wfpx*3.2, hfpx*3, "(Version: " ..version ..")", smSiz)
+    lcd.drawText(midpx-wfpx*6.4, hfpx*4.8,"for UNI-RX Firmware", txtSiz)
+    lcd.drawText(xpos_L, hfpxLast, "Developer MikeBlandford", txtSiz)
+    start = start + 1
   elseif Resetting > 0 then
     refreshresetting()
   elseif Page == 0 then
@@ -1015,23 +882,23 @@ local function run(event)
 
   local rssi, low, crit = getRSSI()
   if rssi == 0 then
-    Stat7Read = 0
-    Stat8Read = 0
-    Stat9Read = 0
-    NineMsRead = 0
-    CratesRead = 0
-    ChansRead = 0
-    Sbus4Read = 0
-    Sbus8Read = 0
-    CppmRead = 0
-    D8cppmRead = 0
-    InvSbusRead = 0
-    TuneRead = 0
-    TuneOffRead = 0
-    EnableMapRead = 0
+    Stat7Value = -1
+    Stat8Value = -1
+    Stat9Value = -1
+    TuneValue = -1
+    Chans9_16 = -1
+    Sbus4Value = -1
+    Sbus8Value = -1
+    CppmValue = -1
+    D8cppmValue = -1
+    InvSbusValue = -1
+    Rate = -1
+    Crates = -1
+	 MapEnable = -1
+	 Fbus.Value = -1
+	 TuneOffset = -1
     for i = 0, 15 do
-      Map[i] = 0
-      MapRead[i] = 0
+      Map[i] = -1
     end
   end
 
