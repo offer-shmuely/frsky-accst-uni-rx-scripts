@@ -1,56 +1,56 @@
--- TNS|UNI Setup v5|TNE
+-- TNS|UNI Setup v6|TNE
 
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V3 RX8RPRO corrected, RX8R added, whitespace reformat-Mike Blandford
 -- V4 RX4R/6R and XSR added,options Invert SBUS,CPPM Enable added,New page-Rx Servo Rates,Misc options as N/A by RX firmware detected,Color added,D8/D4 now work need ver_57 by MikeB + MRC3742
 -- V4b 21.06.2023 R-XSR receiver added with options to include Invert SBUS and CPPM Enable
 
-version = "6"
+local version = "6"
 
 -- User adjustable settings --
-splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
-use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
-largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
+local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
+local use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
+local largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
 
 -- For proper script operation Do NOT change values below this line
-Bits = {}
-OnOff = {}
-RxType = {}
-Mode = {}
-Map = {}
-MapText = {}
-ResetText = {}
-txid = 0x17
-now = getTime() -- 50
-item = 0
-Sbus4Value = -1
-InvSbusValue = -1
-TuneOffset = -1
-Page = 0
-SelectedItem = 1
-keepAlive = 1
-skipCrates = 0
-MapEnable = -1
-EditValue = 0
-OldValue = 0
-midpx = LCD_W / 2
-txtSiz = 0
-start = 0
-Resetting = 0
-Fbus = {}
+local Bits = {}
+local OnOff = {}
+local RxType = {}
+local Mode = {}
+local Map = {}
+local MapText = {}
+local ResetText = {}
+local txid = 0x17
+local now = getTime() -- 50
+local item = 0
+local Sbus4Value = -1
+local InvSbusValue = -1
+local TuneOffset = -1
+local Page = 0
+local SelectedItem = 1
+local keepAlive = 1
+local skipCrates = 0
+local MapEnable = -1
+local EditValue = 0
+local OldValue = 0
+local midpx = LCD_W / 2
+local txtSiz = 0
+local start = 0
+local Resetting = 0
+local Fbus = {}
 Fbus.Value = -1
 Fbus.id = 0xEC
-Stat7Value = -1
-Stat8Value = -1
-Stat9Value = -1
-Chans9_16 = -1
-D8cppmValue = -1
-CppmValue = -1
-Sbus8Value = -1
-TuneValue = -1
-Rate = -1
-Crates = -1
-FbusOK = 0
+local Stat7Value = -1
+local Stat8Value = -1
+local Stat9Value = -1
+local Chans9_16 = -1
+local D8cppmValue = -1
+local CppmValue = -1
+local Sbus8Value = -1
+local TuneValue = -1
+local Rate = -1
+local Crates = -1
+local FbusOK = 0
 
 local function upField()
   if Page == 0 then
@@ -176,7 +176,7 @@ local function changeSetup()
       updateValue(InvSbusValue, 0xEA)
 		InvSbusValue = -1
 	end
-    
+
   elseif SelectedItem == 5 then
     if t == 0 then
       updateValue(D8cppmValue, 0xED)
@@ -184,7 +184,7 @@ local function changeSetup()
 	 elseif t == 2 or t == 7 then
       updateValue(CppmValue, 0xE3)
 		CppmValue = -1
-	 end 
+	 end
 
   elseif SelectedItem == 6 then
     if t == 0 then
@@ -194,7 +194,7 @@ local function changeSetup()
       updateValue(Fbus.Value, Fbus.id)
       Fbus.Value = -1
     end
-	 
+
   elseif SelectedItem == 7 then
     if t == 0 then --D8R/D4R Receivers
       updateValue(Sbus8Value, 0xE1)
@@ -425,7 +425,7 @@ local function display9_18(item)
     thisitem = Map[item]+1
   else
     if Chans9_16 == 1 then
-	   thisitem = item+9 
+	   thisitem = item+9
     else
 	   thisitem = item+1
     end
