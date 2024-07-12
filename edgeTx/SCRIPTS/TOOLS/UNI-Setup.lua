@@ -1,56 +1,56 @@
--- TNS|UNI Setup v6|TNE
+-- TNS|UNI Setup v7|TNE
 
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V3 RX8RPRO corrected, RX8R added, whitespace reformat-Mike Blandford
 -- V4 RX4R/6R and XSR added,options Invert SBUS,CPPM Enable added,New page-Rx Servo Rates,Misc options as N/A by RX firmware detected,Color added,D8/D4 now work need ver_57 by MikeB + MRC3742
 -- V4b 21.06.2023 R-XSR receiver added with options to include Invert SBUS and CPPM Enable
 
-local version = "6"
+version = "7"
 
 -- User adjustable settings --
-local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
-local use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
-local largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
+splashTime = 30 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
+use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
+largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
 
 -- For proper script operation Do NOT change values below this line
-local Bits = {}
-local OnOff = {}
-local RxType = {}
-local Mode = {}
-local Map = {}
-local MapText = {}
-local ResetText = {}
-local txid = 0x17
-local now = getTime() -- 50
-local item = 0
-local Sbus4Value = -1
-local InvSbusValue = -1
-local TuneOffset = -1
-local Page = 0
-local SelectedItem = 1
-local keepAlive = 1
-local skipCrates = 0
-local MapEnable = -1
-local EditValue = 0
-local OldValue = 0
-local midpx = LCD_W / 2
-local txtSiz = 0
-local start = 0
-local Resetting = 0
-local Fbus = {}
+Bits = {}
+OnOff = {}
+RxType = {}
+Mode = {}
+Map = {}
+MapText = {}
+ResetText = {}
+txid = 0x17
+now = getTime() -- 50
+item = 0
+Sbus4Value = -1
+InvSbusValue = -1
+TuneOffset = -1
+Page = 0
+SelectedItem = 1
+keepAlive = 1
+skipCrates = 0
+MapEnable = -1
+EditValue = 0
+OldValue = 0
+midpx = LCD_W / 2
+txtSiz = 0
+start = 0
+Resetting = 0
+Fbus = {}
 Fbus.Value = -1
 Fbus.id = 0xEC
-local Stat7Value = -1
-local Stat8Value = -1
-local Stat9Value = -1
-local Chans9_16 = -1
-local D8cppmValue = -1
-local CppmValue = -1
-local Sbus8Value = -1
-local TuneValue = -1
-local Rate = -1
-local Crates = -1
-local FbusOK = 0
+Stat7Value = -1
+Stat8Value = -1
+Stat9Value = -1
+Chans9_16 = -1
+D8cppmValue = -1
+CppmValue = -1
+Sbus8Value = -1
+TuneValue = -1
+Rate = -1
+Crates = -1
+FbusOK = 0
 
 local function upField()
   if Page == 0 then
@@ -176,7 +176,7 @@ local function changeSetup()
       updateValue(InvSbusValue, 0xEA)
 		InvSbusValue = -1
 	end
-
+    
   elseif SelectedItem == 5 then
     if t == 0 then
       updateValue(D8cppmValue, 0xED)
@@ -184,7 +184,7 @@ local function changeSetup()
 	 elseif t == 2 or t == 7 then
       updateValue(CppmValue, 0xE3)
 		CppmValue = -1
-	 end
+	 end 
 
   elseif SelectedItem == 6 then
     if t == 0 then
@@ -194,7 +194,7 @@ local function changeSetup()
       updateValue(Fbus.Value, Fbus.id)
       Fbus.Value = -1
     end
-
+	 
   elseif SelectedItem == 7 then
     if t == 0 then --D8R/D4R Receivers
       updateValue(Sbus8Value, 0xE1)
@@ -227,11 +227,11 @@ local function refreshSetup()
     now = now + 60
     keepAlive = 0
     if Stat7Value == -1 then
-      sendRead(0x07FF)
+      sendRead(0x7FF)
     elseif Stat8Value == -1 then
-      sendRead(0x08FF)
+      sendRead(0x8FF)
     elseif Stat9Value == -1 then
-      sendRead(0x09FF)
+      sendRead(0x9FF)
     elseif Chans9_16 == -1 then
       sendRead(0xE0)
     elseif Sbus8Value == -1 then
@@ -283,27 +283,27 @@ local function refreshSetup()
         end
       else
         value = bit32.band(value, 0x00FF)
-        if x == 0x00E0 then
+        if x == 0xE0 then
           Chans9_16 = value
-        elseif x == 0x00E1 then
+        elseif x == 0xE1 then
           Sbus8Value = value
-        elseif x == 0x00E2 then
+        elseif x == 0xE2 then
           Sbus4Value = value
-        elseif x == 0x00E3 then
+        elseif x == 0xE3 then
           CppmValue = value
-        elseif x == 0x00E4 then
+        elseif x == 0xE4 then
           TuneOffset = value
-        elseif x == 0x00E5 then
+        elseif x == 0xE5 then
           TuneValue = value
-        elseif x == 0x00EA then
+        elseif x == 0xEA then
           InvSbusValue = value
-        elseif x == 0x00ED then
+        elseif x == 0xED then
           D8cppmValue = value
-        elseif x == 0x00EC then
+        elseif x == 0xEC then
           Fbus.Value = value
         end
-        now = getTime() - 55
       end
+      now = getTime() - 55
     end
     refreshState = 0
   end
@@ -399,7 +399,7 @@ local function refreshSetup()
       lcd.drawText(xpos_R, ty, OnOff[Sbus8Value], attr + txtSiz_R)
 	 end
   elseif FbusOK ~= 0 then
-    displayOption(ty, "FBUS", 6, Fbus.Value, OnOff )
+    displayOption(ty, "FBUS", 6, bit32.band(Fbus.Value, 0x0001), OnOff )
   end
 
   lcd.drawText(LCD_W, 0, "1/3", smSiz + RIGHT)
@@ -407,10 +407,9 @@ end ---- END Receiver Setup Page-0 ----
 
 ---------- Page-1 RX Servo Rates ----------
 local function display9_18(item)
+  svalue = 18
   if bit32.band(Crates,Bits[item]) == Bits[item] then
     svalue = 9
-  else
-    svalue = 18
   end
 
   if LCD_W == 128 then
@@ -425,7 +424,7 @@ local function display9_18(item)
     thisitem = Map[item]+1
   else
     if Chans9_16 == 1 then
-	   thisitem = item+9
+	   thisitem = item+9 
     else
 	   thisitem = item+1
     end
@@ -466,7 +465,7 @@ local function refreshServoRates()
       elseif x == 0x00E7 then
         Crates = value
       end
-      now = getTime() - 55
+      now = getTime() - 65
     end
     refreshState = 0
   end
@@ -477,14 +476,12 @@ local function refreshServoRates()
   attr = txtSiz
   if SelectedItem == 0 then attr = INVERS + txtSiz end
   if Rate == 0 then
-    if Crates ~= -1 then
-      lcd.drawText(midpx+wfpx*5.2, ty, "OFF", attr)
-      lcd.drawText(midpx-wfpx*6.6, ty+hfpx, "All Servos Now 18mS", txtSiz)
-    end
+    lcd.drawText(midpx+wfpx*5.1, ty, "OFF", attr)
+    lcd.drawText(midpx-wfpx*6.6, ty+hfpx, "All Servos Now 18mS", txtSiz)
     skipCrates=1
   else
     if Crates ~= -1 then
-      lcd.drawText(midpx+wfpx*5.2, ty, " ON ", attr)
+      lcd.drawText(midpx+wfpx*5.1, ty, " ON ", attr)
       skipCrates=0
       for item = 0, 8 do
         display9_18(item)
@@ -528,7 +525,7 @@ local function changeMap()
     else
       MapEnable = bit32.bor(MapEnable, 1)
     end
-    newValue = bit32.bor(MapEnable * 256, 0x00E8)
+    newValue = bit32.bor(MapEnable * 256, 0xE8)
     sendWrite(newValue)
     MapEnable = -1
   elseif SelectedItem == 1 then
@@ -537,7 +534,7 @@ local function changeMap()
     else
       MapEnable = bit32.bor(MapEnable, 2)
     end
-    newValue = bit32.bor((MapEnable * 256), 0x00E8)
+    newValue = bit32.bor((MapEnable * 256), 0xE8)
     sendWrite(newValue)
     MapEnable = -1
   else
@@ -589,9 +586,9 @@ local function refreshMap()
         x = bit32.band(value, 0x00FF)
         if x < 16 then
           Map[x] = value / 256
-          now = getTime() - 55
         end
       end
+      now = getTime() - 65
     end
   end
 
@@ -625,19 +622,19 @@ local function refreshresetting()
     now = now + 60
     if Resetting == 5 then
       Resetting = 6
-      sendWrite(0x01E5)
+      sendWrite(0x1E5)
     elseif Resetting < 5 then
-      sendWrite(0x00DF+Resetting)
+      sendWrite(0xDF+Resetting)
       Resetting = Resetting + 1
     elseif Resetting < 9 then
-      sendWrite(0x00E0+Resetting)
+      sendWrite(0xE0+Resetting)
       Resetting = Resetting + 1
     elseif Resetting == 9 then
       Resetting = 10
-      sendWrite(0x00EA)
+      sendWrite(0xEA)
     elseif Resetting == 10 then
       Resetting = 11
-      sendWrite(0x00ED)
+      sendWrite(0xED)
     elseif Resetting < 27 then
       ti = Resetting - 11
       Resetting = Resetting + 1
@@ -646,7 +643,7 @@ local function refreshresetting()
       sendWrite(newValue)
     elseif Resetting == 27 and FbusOK ~= 0 then
       Resetting = 28
-      sendWrite(0x00EC)
+      sendWrite(0xEC)
     else
       Resetting = 0
       TuneValue = -1
@@ -731,7 +728,7 @@ local function init()
   RxType[5] = "RX4R/6  G-RX6/8"
   RxType[6] = "XSR"
   RxType[7] = "R-XSR"
-  RxType[8] = "Type[9]"  --Future Placeholder
+  RxType[8] = "S8R/S6R"
   RxType[9] = "Type[10]"  --Future Placeholder
 
   Mode[0] = "V1FCC"
