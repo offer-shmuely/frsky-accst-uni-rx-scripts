@@ -1,4 +1,4 @@
--- TNS|UNI Stats v7|TNE
+-- TNS|UNI Stats v7a|TNE
 
 -- D8R-II, D8R-IIplus, D8R-XP or D4R-II configuration program for use with the firmware developed by Mike Blandford
 -- Conversion from Basic D8rD16.bas (ErskyTx) to lua D8rD16.lua (OpenTx) code with Avionic78, Dean Church and dev.fred contributions
@@ -18,8 +18,9 @@
 -- V5e 28.02.2022 - DW Page Back not working properly on Taranis
 -- V6  26.02.2023 - New Receivers added, Remove useless code as setup now has a separate script, Title text centered on pages, Color added - MRC3742
 -- V6a 21.06.2023 - R-XSR receiver added
+-- V7a 15.03.2025 - change divisions "/" where a rightshift is intended. Was not working on EdgeTX 2.11 due to 32-bit floats
 
-local version = "7"
+local version = "7a"
 
 -- User adjustable settings --
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
@@ -47,15 +48,20 @@ local Uid0 = 0
 local Uid1 = 0
 local line = 0
 
+local hopI = 0
+
+-- Computed depending on screen size at initialization
+local wfpx, hfpx, hfpxLast, posrep, smSiz, bigSiz, xpos_L, xpos_R, txtSiz_R, smSiz_R
+
 local function displayStats(item, row)
-  dSy = hfpx * (row -1)
+  local dSy = hfpx * (row -1)
   lcd.drawNumber(xpos_R, dSy+hfpx, Statistics[item], txtSiz_R + StatRead[item])
 end
 
 local function refreshStats()
   if getTime() - now > 40 then
     now = now + 40
-    result = sportTelemetryPush(txid, 0x30, 0x0C20, (Sitem * 256) + 0x00FF)
+    local result = sportTelemetryPush(txid, 0x30, 0x0C20, (Sitem * 256) + 0x00FF)
     Sitem = Sitem + 1
     if Sitem > 11 then    --DW 9->11
       Sitem = 0
@@ -66,11 +72,11 @@ local function refreshStats()
   if primId ~= nil then
     if primId == 0x32 then
       if dataId == 0x0C20 then
-        x = bit32.band(value, 0x00FF)
+        local x = bit32.band(value, 0x00FF)
         if x == 0x00FF then
-          value = value / 256
+          value = bit32.rshift(value,8)   -- / 256
           x = bit32.band(value, 0x00FF)
-          value = value / 256
+          value = bit32.rshift(value,8)   -- / 256
           if x < 12 then     --DW 10->12
             Statistics[x] = value
             StatRead[0] = 0
@@ -90,7 +96,7 @@ local function refreshStats()
         end
       end
     end
-    refreshState = 0
+    --refreshState = 0
   end
 end
 
@@ -124,14 +130,14 @@ local function RecInfo()
 
   if Statistics[9] > 0.51 then
     if Statistics[9] < 10 then
-      t = math.floor(Statistics[9]-0.5)
+      local t = math.floor(Statistics[9]-0.5)
       lcd.drawText(xpos_R, hfpx, RxType[t], txtSiz_R + StatRead[9])
     end
   end
 
   if Statistics[8] ~= nil then     -- Display HF-Mode/Version String
     if Statistics[8] >= 0 then
-      t = math.floor(Statistics[8]+0.5)
+      local t = math.floor(Statistics[8]+0.5)
       lcd.drawText(xpos_R, hfpx*2, Mode[t], txtSiz_R + StatRead[8])
     end
   end
@@ -144,6 +150,7 @@ end	-- END Statistics Page-2 --
 
 -- Page-3 Channel Hop Count --
 local function displayHop(line)
+  local dMx,dMy,dMxa,dMxb
   if LCD_W == 480 then
     dMx = posrep/5.5
     dMy = line + 4
@@ -186,18 +193,18 @@ local function displayHop(line)
     dMy = dMy * hfpx/1.23
   end
 --	lcd.drawText(dMx,dMy,(line + 1)..")", smSiz_R)
-  lcd.drawNumber(dMxa, dMy, HopChannel[i], smSiz_R)
-  lcd.drawNumber(dMxb, dMy, HopCount[i], smSiz_R)
-  i = i + 1
-  if i > 46 then
-    i = 0
+  lcd.drawNumber(dMxa, dMy, HopChannel[hopI], smSiz_R)
+  lcd.drawNumber(dMxb, dMy, HopCount[hopI], smSiz_R)
+  hopI = hopI + 1
+  if hopI > 46 then
+    hopI = 0
   end
 end
 
 local function hoptable()
   if getTime() - now > 40 then
     now = now + 40
-    result = sportTelemetryPush(txid, 0x30, 0x0C20, (Hitem * 256) + 0x00FE)
+    local result = sportTelemetryPush(txid, 0x30, 0x0C20, (Hitem * 256) + 0x00FE)
     Hitem = Hitem + 1
     if Hitem > 47 then
       Hitem = 0
@@ -208,20 +215,20 @@ local function hoptable()
   if primId ~= nil then
     if primId == 0x32 then
       if dataId == 0x0C20 then
-        svalue = value
-        x = bit32.band(value, 0x00FF)
+        --svalue = value
+        local x = bit32.band(value, 0x00FF)
         if x == 0x00FE then
           --value = bit32.band(value, 0x7FFFFFFF)
-          value = value / 256
+          value = bit32.rshift(value,8) -- / 256
           x = bit32.band(value, 0x00FF)
-          value = value / 256
+          value = bit32.rshift(value,8) -- / 256
           if x == 0 then
             Uid0 = bit32.band(value, 0x00FF)
-            value = value / 256
+            value = bit32.rshift(value,8) -- / 256
             Uid1 = bit32.band(value, 0x00FF)
           elseif x < 48 then
             HopChannel[x-1] = bit32.band(value, 0x00FF)
-            value = value / 256
+            value = bit32.rshift(value,8) -- / 256
             HopCount[x-1] = bit32.band(value, 0x00FF)
           end
         end
@@ -239,7 +246,7 @@ local function hoptable()
     lcd.drawNumber(posrep/4, 0, Uid0, smSiz + INVERS + RIGHT)
     lcd.drawNumber(posrep/2.4, 0, Uid1, smSiz + INVERS + RIGHT)
   end
-  i= 0
+  hopI= 0
   for line = -1, 45 do
     displayHop(line)
   end
@@ -284,7 +291,7 @@ local function init()
   RxType[5] = "RX4R/6  G-RX6/8"
   RxType[6] = "XSR"
   RxType[7] = "R-XSR"
-  RxType[8] = "Type[9]"  --Future Placeholder
+  RxType[8] = "S8R/S6R"
   RxType[9] = "Type[10]"  --Future Placeholder
 
   Mode[0] = "V1-FCC"

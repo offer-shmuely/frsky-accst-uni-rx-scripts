@@ -1,23 +1,26 @@
--- TNS|UNI Sxr v1|TNE
+-- TNS|UNI Sxr v1a|TNE
 
 -- SxR, configuration program for use with the firmware developed by Mike Blandford
 
-version = "1"
+local version = "1a"
 
 -- User adjustable settings --
-splashTime = 30 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
-use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
-largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
+local splashTime = 30 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
+local use_color = 0 --<< Changing value to 1 will use script colors instead of theme colors on 480 width LCD color screens only (default value is 0 for theme colors) experimental
+local largeText = 0 --<< Changing value to 1 will allow larger text for easier readability on 480 width LCD color screens only (default value is 0)
 
 -- For proper script operation Do NOT change values below this line
-txid = 0x17
-midpx = LCD_W / 2
-start = 0
-State = 0
-EnterPressed = 0
+local txid = 0x17
+local midpx = LCD_W / 2
+local start = 0
+local State = 0
+local EnterPressed = 0
+
+
+local hfpx, hfpxLast, posrep, wfpx, smSiz, bigSiz, txtSiz, xpos_L, xpos_R, txtSiz_R
 
 local function sendWrite(value)
-  result = sportTelemetryPush(txid, 0x31, 0x0C30, value)
+  local result = sportTelemetryPush(txid, 0x31, 0x0C30, value)
   return result
 end
 
@@ -28,7 +31,7 @@ local function refreshSetup()
     lcd.drawText(1, hfpx*4, "Press Enter to start", txtSiz)
     if EnterPressed == 1 then
 	   EnterPressed = 0
-      State = 1
+     State = 1
 	   sendWrite(0x01AF)
 	 end
   end
@@ -37,8 +40,8 @@ local function refreshSetup()
     local physicalId, primId, dataId, value = sportTelemetryPop()
     if primId == 0x32 then
       if dataId == 0x0C30 then
-        x = bit32.band(value, 0x00FF)
-        value = value / 256
+        local x = bit32.band(value, 0x00FF)
+        value = bit32.rshift(value,8)   -- / 256
         if x == 0x00AF then
           x = bit32.band(value, 0x00FF)
           if x == 1 then
@@ -53,7 +56,7 @@ local function refreshSetup()
     lcd.drawText(1, hfpx*4, "Press Enter", txtSiz)
     if EnterPressed == 1 then
 	   EnterPressed = 0
-      State = 3
+     State = 3
 	   sendWrite(0x02AF)
 	 end
   end
@@ -62,8 +65,8 @@ local function refreshSetup()
     local physicalId, primId, dataId, value = sportTelemetryPop()
     if primId == 0x32 then
       if dataId == 0x0C30 then
-        x = bit32.band(value, 0x00FF)
-        value = value / 256
+        local x = bit32.band(value, 0x00FF)
+        value = bit32.rshift(value,8)   -- / 256
         if x == 0x00AF then
           x = bit32.band(value, 0x00FF)
           if x == 2 then
@@ -79,7 +82,7 @@ local function refreshSetup()
     lcd.drawText(1, hfpx*4, "Press Enter", txtSiz)
     if EnterPressed == 1 then
 	   EnterPressed = 0
-      State = 5
+     State = 5
 	   sendWrite(0x04AF)
 	 end
   end
@@ -90,7 +93,7 @@ local function refreshSetup()
     lcd.drawText(1, hfpx*6, "Press Enter", txtSiz)
     if EnterPressed == 1 then
 	   EnterPressed = 0
-      State = 6
+     State = 6
 	   sendWrite(0x05AF)
 	 end
   end
