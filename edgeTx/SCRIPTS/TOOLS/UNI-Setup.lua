@@ -160,7 +160,7 @@ local function changeSetup()
 	  TuneValue = -1
 
   elseif SelectedItem == 2 then
-    if RxT == 7 then  -- where is T initialized?
+    if RxT == 7 then
       updateValue(Fbus.Value, Fbus.id)
       Fbus.Value = -1
 	 else
@@ -169,7 +169,7 @@ local function changeSetup()
 	 end
 
   elseif SelectedItem == 3 then
-    if RxT == 0 then  -- where is T initialized?
+    if RxT == 0 then
       updateValue(CppmValue, 0xE3)
 		  CppmValue = -1
 	 else
@@ -178,7 +178,7 @@ local function changeSetup()
     end
 
   elseif SelectedItem == 4 then
-   if RxT == 0 or RxT == 3 or RxT == 5 or RxT == 7 then  -- where is T initialized?
+   if RxT == 0 or RxT == 3 or RxT == 5 or RxT == 7 then
       updateValue(InvSbusValue, 0xEA)
 		  InvSbusValue = -1
 	end

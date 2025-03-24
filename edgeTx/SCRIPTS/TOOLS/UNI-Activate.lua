@@ -107,7 +107,7 @@ end
 
 local function refreshSetup()
   local result = 0
-  local i = 0
+  --local i = 0 -- is i used??
 
   if getTime() - now > 60 then
     now = now + 60
@@ -125,7 +125,7 @@ local function refreshSetup()
     elseif ValidRead == 0 then
       result = sendRead(0xEB)
     else
-      i = 0
+      --i = 0
     end
     if result == 0 then
       now = now - 60
@@ -171,7 +171,7 @@ local function refreshSetup()
         if ValidRead == 0 then
           keepAlive = 1
         end
-        x = bit32.band(value, 0x00FF)
+        local x = bit32.band(value, 0x00FF)
         if x == 0x00FF then
           value = bit32.rshift(value,8) -- / 256
           x = bit32.band(value, 0x00FF)
