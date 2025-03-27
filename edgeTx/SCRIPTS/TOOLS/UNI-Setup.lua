@@ -1,11 +1,11 @@
--- TNS|UNI Setup v8a|TNE
+-- TNS|UNI Setup v9|TNE
 
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V3 RX8RPRO corrected, RX8R added, whitespace reformat-Mike Blandford
 -- V4 RX4R/6R and XSR added,options Invert SBUS,CPPM Enable added,New page-Rx Servo Rates,Misc options as N/A by RX firmware detected,Color added,D8/D4 now work need ver_57 by MikeB + MRC3742
 -- V4b 21.06.2023 R-XSR receiver added with options to include Invert SBUS and CPPM Enable
 
-local version = "8a"
+local version = "9"
 
 -- User adjustable settings --
 local splashTime = 30 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)

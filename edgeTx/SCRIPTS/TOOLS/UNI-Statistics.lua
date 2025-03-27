@@ -1,4 +1,4 @@
--- TNS|UNI Stats v7a|TNE
+-- TNS|UNI Stats v8|TNE
 
 -- D8R-II, D8R-IIplus, D8R-XP or D4R-II configuration program for use with the firmware developed by Mike Blandford
 -- Conversion from Basic D8rD16.bas (ErskyTx) to lua D8rD16.lua (OpenTx) code with Avionic78, Dean Church and dev.fred contributions
@@ -18,9 +18,9 @@
 -- V5e 28.02.2022 - DW Page Back not working properly on Taranis
 -- V6  26.02.2023 - New Receivers added, Remove useless code as setup now has a separate script, Title text centered on pages, Color added - MRC3742
 -- V6a 21.06.2023 - R-XSR receiver added
--- V7a 15.03.2025 - change divisions "/" where a rightshift is intended. Was not working on EdgeTX 2.11 due to 32-bit floats
+-- V8  15.03.2025 - change divisions "/" where a rightshift is intended. Was not working on EdgeTX 2.11 due to 32-bit floats
 
-local version = "7a"
+local version = "8"
 
 -- User adjustable settings --
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)

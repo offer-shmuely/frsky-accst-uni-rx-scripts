@@ -1,8 +1,8 @@
--- TNS|UNI Sxr v1a|TNE
+-- TNS|UNI SxR v2|TNE
 
 -- SxR, configuration program for use with the firmware developed by Mike Blandford
 
-local version = "1a"
+local version = "2"
 
 -- User adjustable settings --
 local splashTime = 30 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
