@@ -1,9 +1,9 @@
--- TNS|UNI Activate v3|TNE
+-- TNS|UNI Activate v4|TNE
 
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V2 Activation Code numbers blinking when selected to change, Rx disconnected clears screen, Whitespace reformat, Misc cosmetic changes, Color added by MRC3742
 
-local version = "3"
+local version = "4"
 
 -- User adjustable settings --
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
@@ -38,17 +38,20 @@ local ValidRead = 0
 local SendingCode = 0
 local UpdateValue = 0
 
+-- Computed depending on screen size at initialization
+local wfpx, hfpx, hfpxLast, posrep, xpos_L, xpos_R, smSiz, bigSiz
+
 local function toHex(value)
-  HexText = HexChars[bit32.band(value/4096, 0x000F)]
-  HexText = HexText .. HexChars[bit32.band(value/256, 0x000F)]
-  HexText = HexText .. HexChars[bit32.band(value/16, 0x000F)]
+  HexText = HexChars[bit32.band(bit32.rshift(value,12), 0x000F)]            -- / 4096
+  HexText = HexText .. HexChars[bit32.band(bit32.rshift(value,8), 0x000F)]  -- / 256
+  HexText = HexText .. HexChars[bit32.band(bit32.rshift(value,4), 0x000F)]  -- / 16
   HexText = HexText .. HexChars[bit32.band(value, 0x000F)]
 end
 
 local function upField()
   if EditValue > 0 then
     if SelectedItem < 6 then
-      x = Code[SelectedItem]
+      local x = Code[SelectedItem]
       if x > 0 then
         x = x - 1
       end
@@ -66,7 +69,7 @@ end
 local function downField()
   if EditValue > 0 then
     if SelectedItem < 6 then
-      x = Code[SelectedItem]
+      local x = Code[SelectedItem]
       if x < 15 then
         x = x + 1
       end
@@ -81,7 +84,7 @@ local function downField()
 end
 
 local function sendWrite(value)
-  result = sportTelemetryPush(txid, 0x31, 0x0C20, value)
+  local result = sportTelemetryPush(txid, 0x31, 0x0C20, value)
   return result
 end
 
@@ -98,11 +101,14 @@ local function changeSetup()
 end
 
 local function sendRead(value)
-  result = sportTelemetryPush(txid, 0x30, 0x0C20, value)
+  local result = sportTelemetryPush(txid, 0x30, 0x0C20, value)
   return result
 end
 
 local function refreshSetup()
+  local result = 0
+  --local i = 0 -- is i used??
+
   if getTime() - now > 60 then
     now = now + 60
     keepAlive = 0
@@ -119,31 +125,31 @@ local function refreshSetup()
     elseif ValidRead == 0 then
       result = sendRead(0xEB)
     else
-      i = 0
+      --i = 0
     end
     if result == 0 then
       now = now - 60
     end
     if SendingCode > 0 then
       if SendingCode == 3 then
-        UpdateValue = Code[0] + Code[1] * 256
-        UpdateValue = UpdateValue * 65536
+        UpdateValue = Code[0] + bit32.lshift(Code[1],8)  -- * 256
+        UpdateValue = bit32.lshift(UpdateValue,16)       -- * 65536
         UpdateValue = UpdateValue + 0xEB
         result = sportTelemetryPush(txid, 0x31, 0x0C20, UpdateValue)
           if result ~= 0 then
             SendingCode = 2
           end
     elseif SendingCode == 2 then
-      UpdateValue = Code[2] + Code[3] * 256
-      UpdateValue = UpdateValue * 65536
+      UpdateValue = Code[2] + bit32.lshift(Code[3],8)  -- * 256
+      UpdateValue = bit32.lshift(UpdateValue,16)       -- * 65536
       UpdateValue = UpdateValue + 0x1EB
       result = sportTelemetryPush(txid, 0x31, 0x0C20, UpdateValue)
         if result ~= 0 then
           SendingCode = 1
         end
     elseif SendingCode == 1 then
-      UpdateValue = Code[4] + Code[5] * 256
-      UpdateValue = UpdateValue * 65536
+      UpdateValue = Code[4] + bit32.lshift(Code[5],8)  -- * 256
+      UpdateValue = bit32.lshift(UpdateValue,16)       -- * 65536
       UpdateValue = UpdateValue + 0x2EB
       result = sportTelemetryPush(txid, 0x31, 0x0C20, UpdateValue)
         if result ~= 0 then
@@ -165,11 +171,11 @@ local function refreshSetup()
         if ValidRead == 0 then
           keepAlive = 1
         end
-        x = bit32.band(value, 0x00FF)
+        local x = bit32.band(value, 0x00FF)
         if x == 0x00FF then
-          value = value / 256
+          value = bit32.rshift(value,8) -- / 256
           x = bit32.band(value, 0x00FF)
-          value = value / 256
+          value = bit32.rshift(value,8) -- / 256
           if x == 12 then
             Id0Value = value
             Id0Read = 1
@@ -192,7 +198,7 @@ local function refreshSetup()
           end
         else
           if x == 0x00EB then
-            value = value / 256
+            value = bit32.rshift(value,8) -- / 256
             ValidValue = bit32.band(value, 0x00FF)
             ValidRead = 1
           end
@@ -200,14 +206,14 @@ local function refreshSetup()
         end
       end
     end
-    refreshState = 0
+    -- refreshState = 0
   end
 end
 
 local function page0()
   lcd.drawText( midpx-wfpx*4.4, 0,"RX  Activation", txtSiz)
 
-lcd.drawText(xpos_L, hfpx*2, "Rx Code:", txtSiz)
+  lcd.drawText(xpos_L, hfpx*2, "Rx Code:", txtSiz)
   if Id1Read == 1 then
     toHex( Id1Value )
     lcd.drawText(midpx-wfpx*2, hfpx*2, HexText, txtSiz)
@@ -231,9 +237,9 @@ lcd.drawText(xpos_L, hfpx*2, "Rx Code:", txtSiz)
   end
 
   lcd.drawText(xpos_L, hfpx*5, "Activate Code:", txtSiz)
-  i = 0
+  local i = 0
   while i < 6 do
-    attr = 0
+    local attr = 0
     if SelectedItem == i and EditValue > 0 then
       attr = INVERS + BLINK
     elseif SelectedItem == i then
@@ -243,7 +249,7 @@ lcd.drawText(xpos_L, hfpx*2, "Rx Code:", txtSiz)
     i = i + 1
   end
 
-  attr = 0
+  local attr = 0
   if SelectedItem == 6 then
     attr = INVERS
   end
