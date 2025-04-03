@@ -52,6 +52,7 @@ local Crates = -1
 local FbusOK = 0
 
 local limit = 0
+local result = 0   -- make result global to not offset refreshServo timing
 
 -- Computed based on screen size at initialization
 local  wfpx, hfpx, hfpxLast, posrep, smSiz, bigSiz, xpos_L, xpos_R, txtSiz_R
@@ -451,7 +452,6 @@ local function refreshServoRates()
   if getTime() - now > 60 then
     now = now + 60
     keepAlive = 0
-    local result
     if Rate == -1 then
       result = sendRead(0xE6)
     elseif Crates == -1 then
