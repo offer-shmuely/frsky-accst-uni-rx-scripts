@@ -37,6 +37,7 @@ local ValidValue = 0
 local ValidRead = 0
 local SendingCode = 0
 local UpdateValue = 0
+local result = 0 -- needed global to not affect timing of refreshSetup
 
 -- Computed depending on screen size at initialization
 local wfpx, hfpx, hfpxLast, posrep, xpos_L, xpos_R, smSiz, bigSiz
@@ -106,7 +107,6 @@ local function sendRead(value)
 end
 
 local function refreshSetup()
-  local result = 0
   --local i = 0 -- is i used??
 
   if getTime() - now > 60 then
