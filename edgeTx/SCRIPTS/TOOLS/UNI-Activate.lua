@@ -3,7 +3,7 @@
 -- X8R, X4R configuration program for use with the firmware developed by Mike Blandford
 -- V2 Activation Code numbers blinking when selected to change, Rx disconnected clears screen, Whitespace reformat, Misc cosmetic changes, Color added by MRC3742
 
-local version = "4"
+local version = "5"
 
 -- User adjustable settings --
 local splashTime = 40 --<< Change value for splash screen display time at startup, change to 0 to disable (default value is 40 for two seconds)
